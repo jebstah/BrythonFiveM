@@ -8,17 +8,20 @@ db = {}
 
 function db.GETData(identifier, callback, database, table)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. table, function(err, rText, headers)
-      if rText then
-        valReturn = json.decode(rText)
+      local responseText = json.decode(rText)
+      if err > 299 then
+        callback(false, responseText)
+      else
+        callback(true, responseText)
       end
   end, "GET", "", {Authorization = "Basic " .. auth})
-  return valReturn
 end
 
 function db.PUTData(identifier, callback, database, table, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. table, function(err, rText, headers)
+      local responseText = json.decode(rText)
       if err > 299 then
-        callback(false, rText)
+        callback(false, responseText)
       else
         callback(true, 0)
       end
@@ -27,17 +30,20 @@ end
 
 function db.POSTData(identifier, callback, database, table, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. table, function(err, rText, headers)
-      if rText then
-        valReturn = json.decode(rText)
+      local responseText = json.decode(rText)
+      if err > 299 then
+        callback(false, responseText)
+      else
+        callback(true, responseText)
       end
   end, "POST", json.encode(queryData), {["Content-type"] = 'application/json', Authorization = "Basic " .. auth})
-  return valReturn
 end
 
 function db.DELETEData(identifier, callback, database, table)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. table, function(err, rText, headers)
+      local responseText = json.decode(rText)
       if err > 299 then
-        callback(false, rText)
+        callback(false, responseText)
       else
         callback(true, 0)
       end

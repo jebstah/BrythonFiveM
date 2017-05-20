@@ -1,25 +1,72 @@
 local savedOutfits = {}
 
-require "resources/essentialmode/lib/MySQL"
--- MySQL:open("IP", "databasname", "user", "password")
-MySQL:open("127.0.0.1", "gta5_script_customization", "root", "1202")
-
 RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
-		local executed_query = MySQL:executeQuery("SELECT * FROM outfits WHERE identifier = '@name'", {['@name'] = target.identifier})
-		local result = MySQL:getResults(executed_query, {'identifier', 'hair', 'haircolour', 'torso', 'torsotexture', 'torsoextra', 'torsoextratexture', 'pants', 'pantscolour', 'shoes', 'shoescolour', 'bodyaccesoire', 'undershirt', 'armor'}, "identifier")
-
-		if(result[1] == nil)then
-			MySQL:executeQuery("INSERT INTO outfits (`identifier`,`hair`, `haircolour`, `torso`, `torsotexture`, `torsoextra`, `torsoextratexture`, `pants`, `pantscolour`, `shoes`, `shoescolour`, `bodyaccesoire`, `undershirt`, `armor`) VALUES ('@username', @haxczsdasir, @cdasdwad, @dasvdvsadewq, @qadsad, @jhgjghlyuy, @khgfhfg, @hgerqw, @bxcvxc, @jgdfgdfg, @mbcvfd, @lfoerp, @yruiqwdas, @czxczxdasd)",
-			{['@username'] = target.identifier, ['@haxczsdasir']= u.hair, ['@cdasdwad'] = u.haircolour, ['@dasvdvsadewq'] = u.torso, ['@qadsad'] = u.torsotexture, ['@jhgjghlyuy'] = u.torsoextra, ['@khgfhfg'] = u.torsoextratexture, ['@hgerqw'] = u.pants, ['@bxcvxc'] = u.pantscolour, ['@jgdfgdfg'] = u.shoes, ['@mbcvfd'] = u.shoescolour, ['@lfoerp'] = u.bodyaccesoire, ['@yruiqwdas'] = u.undershirt, ['@czxczxdasd'] = u.armor})
-		else
-			print(u.haircolour)
-			MySQL:executeQuery("UPDATE outfits SET `hair`='@haxczsdasir', `haircolour`='@cdasdwad', `torso` = '@dasvdvsadewq', `torsotexture` = '@qadsad', `torsoextra` = '@jhgjghlyuy', `torsoextratexture` = '@khgfhfg', `pants` = '@hgerqw', `pantscolour` = '@bxcvxc', `shoes` = '@jgdfgdfg', `shoescolour` = '@mbcvfd', `bodyaccesoire` = '@lfoerp', `undershirt` = '@yruiqwdas', `armor` = '@czxczxdasd' WHERE identifier = '@name'",
-			{['@name'] = target.identifier, ['@haxczsdasir']= u.hair, ['@cdasdwad'] = u.haircolour, ['@dasvdvsadewq'] = u.torso, ['@qadsad'] = u.torsotexture, ['@jhgjghlyuy'] = u.torsoextra, ['@khgfhfg'] = u.torsoextratexture, ['@hgerqw'] = u.pants, ['@bxcvxc'] = u.pantscolour, ['@jgdfgdfg'] = u.shoes, ['@mbcvfd'] = u.shoescolour, ['@lfoerp'] = u.bodyaccesoire, ['@yruiqwdas'] = u.undershirt, ['@czxczxdasd'] = u.armor})
-		end
-
-		target:removeMoney(250)
+    local database = "es_customization"
+    local table = "outfits"
+    local queryData = {selector = {["identifier"] = target.identifier}}
+    db.POSTData(target.identifier, 
+      function(exists, responseText)
+        if exists == false then
+          if responseText == nil then
+            local queryData = {
+              "_id":target.identifier,
+              "hair":u.hair,
+              "haircolor":u.haircolour,
+              "torso":u.torso,
+              "torsotexture":u.torsotexture,
+              "torsoextra":u.torsoextra,
+              "torsoextratexture":u.torsoextratexture,
+              "pants":u.pants,
+              "pantscolor":u.pantscolour,
+              "shoes":u.shoes,
+              "shoescolor":u.shoescolour,
+              "bodyaccessory":u.bodyaccesorie,
+              "undershirt":u.undershirt,
+              "armor":u.armor}
+            db.PUTData(target.identifier, 
+              function(exists, responseText)
+                if exists == true then
+                  print "PUT was successful"
+                else
+                  print "PUT failed" .. responseText
+                end
+            end, database, table, queryData)
+          end
+        else
+          if responseText ~= nil then
+            local queryData = {
+              "_id":target.identifier,
+              "hair":u.hair,
+              "haircolor":u.haircolour,
+              "torso":u.torso,
+              "torsotexture":u.torsotexture,
+              "torsoextra":u.torsoextra,
+              "torsoextratexture":u.torsoextratexture,
+              "pants":u.pants,
+              "pantscolor":u.pantscolour,
+              "shoes":u.shoes,
+              "shoescolor":u.shoescolour,
+              "bodyaccessory":u.bodyaccesorie,
+              "undershirt":u.undershirt,
+              "armor":u.armor}
+            db.PUTData(target.identifier, 
+              function(exists, responseText)
+                if exists == true then
+                  print "PUT was successful"
+                else
+                  print "PUT failed" .. responseText
+                end
+            end, database, table, queryData)
+          end
+        end
+          
+    end, database, table, queryData)
+      
+    print(u.haircolour)
+    
+    target:removeMoney(250)
 
 		savedOutfits[source] = u
 
