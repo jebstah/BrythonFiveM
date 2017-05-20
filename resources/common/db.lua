@@ -33,3 +33,13 @@ function db.POSTData(identifier, callback, db, table, queryData)
   end, "POST", json.encode(queryData), {["Content-type"] = 'application/json', Authorization = "Basic " .. auth})
   return valReturn
 end
+
+function db.DELETEData(identifier, callback, db, table)
+  PerformHttpRequest(serverUrl .. port .. "/" .. db .. "/" .. table, function(err, rText, headers)
+      if err > 299 then
+        callback(false, rText)
+      else
+        callback(true, 0)
+      end
+  end, "DELETE", {Authorization = "Basic " .. auth})
+end
