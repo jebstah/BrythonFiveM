@@ -41,5 +41,5 @@ function db.DELETEData(identifier, callback, db, table)
       else
         callback(true, 0)
       end
-  end, "DELETE", {Authorization = "Basic " .. auth})
+  end, "DELETE", "", {Authorization = "Basic " .. auth})
 end
