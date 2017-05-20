@@ -1,6 +1,6 @@
 serverUrl = "http://127.0.0.1:"
 port = 5984
-auth = "bryer:WeAreBadasses"
+auth = "username:password"
 bytespassword = clr.System.Text.Encoding.UTF8.GetBytes(auth);
 auth = clr.System.Convert.ToBase64String(bytespassword);
 
