@@ -30,9 +30,9 @@ end
 
 function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-      local doc = json.decode(rText).docs
-      if (doc[1]) then
-        callback(doc[1])
+      local docs = json.decode(rText).docs
+      if (docs) then
+        callback(docs)
       else
         callback(false)
       end
@@ -62,6 +62,6 @@ database)
 end
 
 firstRun('essentialmode')
-
+firstRun('fs_freeroam')
 --Last line apparently requires, or so says the shitty dev :)
 local theTestObject, jsonPos, jsonErr = json.decode('{"test":"tested"}')

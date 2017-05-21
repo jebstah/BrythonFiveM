@@ -1,17 +1,15 @@
 -- Modified by c7a1 and Zaedred
 
 local users = {}
-
-local db = require '../common/db.lua'
 local POST_database = 'es_freeroam/_find'
 local PUT_database = 'es_freeroam'
-local queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+local queryData = '{selector = {["identifier"] = ""}}'
 
 AddEventHandler('es:playerLoaded', function(source, user)
-    queryData = '{selector = {["identifier"] = '..user.identifier..'}}'
+    queryData = {selector = {["identifier"] = user.identifier}}
     db.POSTData(
-      function(exist, rText)
-        users[source] = rText["id"]
+      function(doc)
+        users[source] = doc.identifier
       end,"es_freeroam",queryData)
   end)
 
@@ -26,14 +24,14 @@ AddEventHandler('CheckMoneyForVeh', function(vehicle, price)
           user:removeMoney((price))
           -- Save this shit to the database
           db.GETData("",
-            function(exist, rText)
+            function(uuid)
               for i in pairs({personalvehicle = vehicle})do
               user[i] = update[i]
             end
-            queryData = json.encode(user)
-            db.PUTData(rText['uuid'],
-              function(exist, rText)
-                if not exist then
+            queryData = user
+            db.PUTData(uuid,
+              function(success)
+                if not success then
                   print('Error importing data to the Database!')
                 end
               end,PUT_Database, queryData)
@@ -63,15 +61,15 @@ AddEventHandler('es:newPlayerLoaded', function(source, user)
     if created[source] == nil then
       print('test creating acc ' .. tostring(created[source]))
       db.GETData("",
-        function(exist, rText)
-          if exists then
-            db.PUTData(rText['uuid'],
-              function(exist, rText)
-                if not exist then
+        function(uuid)
+          if uuid then
+            db.PUTData(uuid,
+              function(success)
+                if not success then
                   print('Error importing data to the Database!')
                 else
                   created[source] = true
-                  queryData = '{"identifier" = ' .. identifier .. ', personalvehicle = ""}'
+                  queryData = {"identifier" = identifier, "personalvehicle" = ""}
                 end
               end,PUT_Database, queryData)
           end

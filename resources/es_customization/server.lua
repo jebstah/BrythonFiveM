@@ -6,9 +6,9 @@ RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
     local queryData = {selector = {["identifier"] = target.identifier}}
-    db.POSTData(function(doc)
-        if doc then
-          local queryData = {_rev = doc._rev,
+    db.POSTData(function(docs)
+        if docs then
+          local queryData = {_rev = docs[1]._rev,
                   identifier = target.identifier,
                   hair = u.hair,
                   haircolor = u.haircolour,
@@ -24,7 +24,7 @@ AddEventHandler("es_customization:saveUser", function(u)
                   undershirt = u.undershirt,
                   armor = u.armor}
                   
-          db.PUTData(doc._id, 
+          db.PUTData(docs[1]._id, 
             function(success)
               if success then
                 print(u.haircolour)
@@ -83,11 +83,11 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local queryData = {selector = {["identifier"] = target.identifier}}
-      db.POSTData(function(doc)
-        if doc then
-          doc._id = nil
+      db.POSTData(function(docs)
+        if docs then
+          docs[1]._id = nil
             
-            savedOutfits[source] = doc
+            savedOutfits[source] = docs
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
         else
           print("Unable to get player from id")
@@ -122,11 +122,11 @@ AddEventHandler("playerSpawn", function()
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local queryData = {selector = {["identifier"] =  target.identifier }}
-      db.POSTData(function(doc)
-        if doc then
-          doc._id = nil
+      db.POSTData(function(docs)
+        if docs then
+          docs[1]._id = nil
             
-            savedOutfits[source] = doc
+            savedOutfits[source] = docs
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
         else
           print("Unable to get player from id")

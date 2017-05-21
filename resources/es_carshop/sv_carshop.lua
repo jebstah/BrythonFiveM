@@ -8,12 +8,12 @@ local queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
 
 AddEventHandler("es:playerLoaded", 
   function(source, target) 
-    queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+    queryData = {selector = {["identifier"] = target.identifier}}
     db.POSTData(
-      function(exist, rText)
-        if exist then
+      function(docs)
+        if docs then
           local send = {}
-          for k,v in ipairs(rText[target.identifier])do
+          for k,v in ipairs(docs[1].identifier)do
           send[v.model] = true
         end
         TriggerClientEvent("es_carshop:sendOwnedVehicles", source, send)
@@ -131,11 +131,11 @@ AddEventHandler("es:reload", function()
           if(GetPlayerName(i))then
             TriggerEvent('es:getPlayerFromId', i, 
               function(target)
-                queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+                queryData = {selector = {["identifier"] = target.identifier}}
                 db.POSTData(
-                  function(exist, rText)
+                  function(docs)
                     local send = {}
-                    for k,v in ipairs(rText[i])do
+                    for k,v in ipairs(docs)do
                     send[v.model] = true
                   end
                   TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
@@ -172,10 +172,10 @@ AddEventHandler("onResourceStart", function(rs)
                 local send = {}
                 TriggerEvent('es:getPlayerFromId', i, 
                   function(target)
-                    queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+                    queryData = {selector = {["identifier"] = target.identifier}}
                     db.POSTData(
-                      function(exist, rText)
-                        for k,v in ipairs(rText[i])do
+                      function(docs)
+                        for k,v in ipairs(docs[i])do
                         send[v.model] = true
                       end
 
@@ -362,18 +362,18 @@ TriggerEvent('es:getPlayerFromId', source,
   function(user)
     local queryData = '{selector = {["identifier"] = '..user.identifier..',["model"] = ' .. vehicle   ..' }}'
     db.POSTData(
-      function(exist, rText) 
-        if exist then
-          queryData = '{ "_rev":' .. rText['_rev'] .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
-          db.PUTData(rText['_id'],function()end,PUT_Database,queryData)
+      function(docs) 
+        if docs then
+          queryData = '{ "_rev":' .. docs[1]._rev .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
+          db.PUTData(docs[1]._id,function()end,PUT_Database,queryData)
         else
           print("No record found in database. Creating one.")
           db.GETData("",
-            function(exist, rText)
-              if exists then
-                db.PUTData(rText['uuid'],
-                  function(exist, rText)
-                    if not exist then
+            function(uuid)
+              if uuid then
+                db.PUTData(uuid,
+                  function(success)
+                    if not success then
                       print('Error importing data to the Database!')
                     else
                       queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"

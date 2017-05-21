@@ -2,8 +2,6 @@
 
 -- Modified by c7a1 and Zaedred
 
-
-local db = require '../common/db.lua'
 local POST_database = 'essentialsmode/_find'
 local PUT_database = 'essentialsmode'
 local queryData = '{selector = {["identifier"] = ' .. identifier .. '}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}'
@@ -11,14 +9,14 @@ local queryData = '{selector = {["identifier"] = ' .. identifier .. '}, fields =
 
 function LoadUser(identifier, source)
   local new = false
-  queryData = '{selector = {["identifier"] = ' .. identifier .. '}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}'
-  db.POSTData(function(exist, rText)
-      if exist then
+  queryData = {selector = {["identifier"] = identifier }}
+  db.POSTData(function(docs)
+      if docs then
         new = false
       else
         new = true
       end
-      local group = groups[rText["group"]]
+      local group = groups[docs[1].group]
 
       Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
 
@@ -30,7 +28,7 @@ function LoadUser(identifier, source)
       if(new)then
         TriggerEvent('es:newPlayerLoaded', source, Users[source])
       end
-    end,PUT_database,queryData)
+    end,POST_database,queryData)
 end
 
 function stringsplit(self, delimiter)
@@ -58,19 +56,28 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
 
         if(k ~= "money") then
           Users[user][k] = v
-          queryData = json.encode({ _rev = user._rev, identifier = user.identifier, money = (new.money or user.money), bank = (new.bank or user.bank), group = (new.group or user.group), permission_level = (new.permission_level or user.permission_level) })
+          queryData = { 
+            "_rev" = user._rev,
+            "identifier" = user.identifier,
+            "money" = (new.money or user.money),
+            "bank" = (new.bank or user.bank),
+            "group" = (new.group or user.group),
+            "permission_level" = (new.permission_level or user.permission_level)
+          }
           db.POSTData(
-            function(exist, rText)
-              for i in pairs({[k] = v})do
-              user[i] = update[i]
+            function(docs)
+              if docs then
+                for i in pairs({[k] = v})do
+                user[i] = update[i]
+              end
+              queryData = user
+              db.PUTData(docs[1]._id,
+                function(success)
+                  if not success then
+                    callback('Error importing data to the Database!')
+                  end
+                end,PUT_Database, queryData)
             end
-            queryData = json.encode(user)
-            db.PUTData(rText['_id'],
-              function(exist, rText)
-                if not exist then
-                  callback('Error importing data to the Database!')
-                end
-              end,PUT_Database, queryData)
           end,POST_database,queryData)
       end
       if(k == "group")then
@@ -85,16 +92,23 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
 end)
 
 AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
-    queryData = json.encode({ _rev = user._rev, identifier = user.identifier, money = (new.money or user.money), bank = (new.bank or user.bank), group = (new.group or user.group), permission_level = (new.permission_level or user.permission_level) })
+    queryData = { 
+      "_rev" = user._rev,
+      "identifier" = user.identifier,
+      "money" = (new.money or user.money),
+      "bank" = (new.bank or user.bank),
+      "group" = (new.group or user.group),
+      "permission_level" = (new.permission_level or user.permission_level)
+    }
     db.POSTData(
-      function(exist, rText)
+      function(docs)
         for i in pairs({[k] = v})do
         user[i] = update[i]
       end
-      queryData = json.encode(user)
-      db.PUTData(rText['_id'],
-        function(exist, rText)
-          if not exist then
+      queryData = user
+      db.PUTData(docs[1]._id,
+        function(success)
+          if not success then
             callback('Error importing data to the Database!')
           end
         end,PUT_Database, queryData)
@@ -124,20 +138,20 @@ local function savePlayerMoney()
   SetTimeout(60000, function()
       TriggerEvent("es:getPlayers", function(users)
           for k,v in pairs(users)do
-          queryData = json.encode({ _rev = user._rev, identifier = user.identifier, money = (new.money or user.money), bank = (new.bank or user.bank), group = (new.group or user.group), permission_level = (new.permission_level or user.permission_level) })
+          queryData = { _rev = user._rev, identifier = user.identifier, money = (new.money or user.money), bank = (new.bank or user.bank), group = (new.group or user.group), permission_level = (new.permission_level or user.permission_level) }
           db.POSTData(
-            function(exist, rText)
+            function(docs)
               for i in pairs({money = v.money})do
               user[i] = update[i]
             end
-            queryData = json.encode(user)
-            db.PUTData(v.identifier,
-              function(exist, rText)
-                if not exist then
+            queryData = user
+            db.PUTData(docs[1]._id,
+              function(success)
+                if not success then
                   print('Error importing data to the Database!')
                 end
               end,PUT_Database, queryData)
-          end,POST_database,queryData)
+          end,POST_database, queryData)
       end
     end)
 
