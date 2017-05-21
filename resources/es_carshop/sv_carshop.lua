@@ -4,7 +4,7 @@ local plates = {}
 local vOptions = {}
 local POST_database = 'es_carshop/_find'
 local PUT_database = 'es_carshop'
-local queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+local queryData = {}
 
 AddEventHandler("es:playerLoaded", 
   function(source, target) 
