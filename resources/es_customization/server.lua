@@ -8,6 +8,38 @@ AddEventHandler("es_customization:saveUser", function(u)
     local queryData = {selector = {["identifier"] = target.identifier}}
     db.POSTData(function(doc)
         if doc then
+          local queryData = {
+                  "_rev":doc._rev,
+                  "identifier":target.identifier,
+                  "hair":u.hair,
+                  "haircolor":u.haircolour,
+                  "torso":u.torso,
+                  "torsotexture":u.torsotexture,
+                  "torsoextra":u.torsoextra,
+                  "torsoextratexture":u.torsoextratexture,
+                  "pants":u.pants,
+                  "pantscolor":u.pantscolour,
+                  "shoes":u.shoes,
+                  "shoescolor":u.shoescolour,
+                  "bodyaccessory":u.bodyaccesorie,
+                  "undershirt":u.undershirt,
+                  "armor":u.armor}
+                  
+                db.PUTData(doc._id, 
+                  function(success)
+                    if success then
+                      print(u.haircolour)
+
+                      target:removeMoney(250)
+
+                      savedOutfits[source] = u
+
+                      TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
+                    else
+                      print("Unable to save outfit ")
+                    end
+                end, PUT_database, queryData)
+        else
           db.GETData("",
             function(uuid)
               if uuid then
@@ -43,38 +75,6 @@ AddEventHandler("es_customization:saveUser", function(u)
                 end, PUT_database, queryData) 
               end
             end, '_uuids')
-        else
-          local queryData = {
-                  "_rev":doc._rev,
-                  "identifier":target.identifier,
-                  "hair":u.hair,
-                  "haircolor":u.haircolour,
-                  "torso":u.torso,
-                  "torsotexture":u.torsotexture,
-                  "torsoextra":u.torsoextra,
-                  "torsoextratexture":u.torsoextratexture,
-                  "pants":u.pants,
-                  "pantscolor":u.pantscolour,
-                  "shoes":u.shoes,
-                  "shoescolor":u.shoescolour,
-                  "bodyaccessory":u.bodyaccesorie,
-                  "undershirt":u.undershirt,
-                  "armor":u.armor}
-                  
-                db.PUTData(doc._id, 
-                  function(success)
-                    if success then
-                      print(u.haircolour)
-
-                      target:removeMoney(250)
-
-                      savedOutfits[source] = u
-
-                      TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
-                    else
-                      print("Unable to save outfit ")
-                    end
-                end, PUT_database, queryData)
         end        
     end, POST_database, queryData)
 	end)
