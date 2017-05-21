@@ -2,11 +2,12 @@
 resource_manifest_version '77731fab-63ca-442c-a67b-abc70f28dfa5'
 
 -- Requiring essentialmode
-dependency 'enhancedessentialmode'
+dependency 'essentialmode'
 
 client_script 'carshop.lua'
 client_script 'customs.lua'
 server_script 'sv_carshop.lua'
+server_script '../common/db.lua'
 
 ui_page 'carshop.html'
 
