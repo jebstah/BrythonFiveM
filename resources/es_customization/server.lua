@@ -43,7 +43,7 @@ AddEventHandler("es_customization:saveUser", function(u)
             end, '_uuids')
         else
           local queryData = {
-                  "_rev":responseText['_rev'],
+                  "_rev":responseText._rev,
                   "identifier":target.identifier,
                   "hair":u.hair,
                   "haircolor":u.haircolour,
