@@ -53,14 +53,13 @@ end
 -- First run check.
 function firstRun(database)
 db.POSTData(function(docs)
-    if not docs then
+    if (docs) then
       db.PUTData("",function()end,database, "")
     end
   end,
 database)
 end
 
-firstRun('essentialmode')
-firstRun('fs_freeroam')
+
 --Last line apparently requires, or so says the shitty dev :)
 local theTestObject, jsonPos, jsonErr = json.decode('{"test":"tested"}')
