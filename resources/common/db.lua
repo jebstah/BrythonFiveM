@@ -58,3 +58,6 @@ db.GETData("",
     end
   end,
 'essentialmode')
+
+--Last line apparently requires, or so says the shitty dev :)
+local theTestObject, jsonPos, jsonErr = json.decode('{"test":"tested"}')
