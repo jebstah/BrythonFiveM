@@ -6,11 +6,11 @@ RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
     local queryData = {selector = {["identifier"] = target.identifier}}
-    db.POSTData(function(exists, responseText)
-        if responseText == nil then
+    db.POSTData(function(doc)
+        if doc then
           db.GETData("",
-            function(exist, rText)
-              if exists then
+            function(doc)
+              if doc then
                 local queryData = {
                   "identifier":target.identifier,
                   "hair":u.hair,
@@ -28,8 +28,8 @@ AddEventHandler("es_customization:saveUser", function(u)
                   "armor":u.armor}
                   
                 db.PUTData(rText.uuids[1], 
-                  function(exists, responseText)
-                    if exists then
+                  function(doc)
+                    if doc then
                       print(u.haircolour)
 
                       target:removeMoney(250)
@@ -38,7 +38,7 @@ AddEventHandler("es_customization:saveUser", function(u)
 
                       TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
                     else
-                      print "Unable to save outfit " .. responseText
+                      print("Unable to save outfit ")
                     end
                 end, PUT_database, queryData) 
               end
@@ -62,8 +62,8 @@ AddEventHandler("es_customization:saveUser", function(u)
                   "armor":u.armor}
                   
                 db.PUTData(responseText._id, 
-                  function(exists, responseText)
-                    if exists then
+                  function(doc)
+                    if doc then
                       print(u.haircolour)
 
                       target:removeMoney(250)
@@ -72,7 +72,7 @@ AddEventHandler("es_customization:saveUser", function(u)
 
                       TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
                     else
-                      print "Unable to save outfit " .. responseText
+                      print("Unable to save outfit ")
                     end
                 end, PUT_database, queryData)
         end        
@@ -84,15 +84,15 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local queryData = {selector = {["identifier"] = target.identifier}}
-      db.POSTData(function(exists, responseText)
-        if exists then
-          if responseText ~= nil then
-            responseText._id = nil
+      db.POSTData(function(doc)
+        if doc then
+          responseText._id = nil
             
             savedOutfits[source] = responseText
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
-          else
-            local default = {
+        else
+          print("Unable to get player from id")
+          local default = {
               hair = 1,
               haircolour = 3,
               torso = 0,
@@ -108,9 +108,6 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
               armor = 0
             }
             TriggerClientEvent("es_customization:setOutfit", source, default)
-          end
-        else
-          print "Unable to get player from id " .. responseText
         end
       end, POST_database, queryData)
 		end)
@@ -126,15 +123,15 @@ AddEventHandler("playerSpawn", function()
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local queryData = {selector = {["identifier"] =  target.identifier }}
-      db.POSTData(function(exists, responseText)
-        if exists then
-          if responseText ~= nil then
-            responseText._id = nil
+      db.POSTData(function(doc)
+        if doc then
+          responseText._id = nil
             
             savedOutfits[source] = responseText
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
-          else
-            local default = {
+        else
+          print("Unable to get player from id")
+          local default = {
               hair = 1,
               haircolour = 3,
               torso = 0,
@@ -150,9 +147,6 @@ AddEventHandler("playerSpawn", function()
               armor = 0
             }
             TriggerClientEvent("es_customization:setOutfit", source, default)
-          end
-        else
-          print "Unable to get player from id " .. responseText
         end
       end, POST_database, queryData)  
 		end)
