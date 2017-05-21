@@ -3,15 +3,14 @@ local savedOutfits = {}
 RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
-    local database = "es_customization"
-    local table = "outfits"
+    local database = "es_customization/outfits/_find"
     local queryData = {selector = {["identifier"] = target.identifier}}
     db.POSTData(target.identifier, 
       function(exists, responseText)
         if exists == false then
           if responseText == nil then
             local queryData = {
-              "_id":target.identifier,
+              "_rev":responseText['_rev'],
               "hair":u.hair,
               "haircolor":u.haircolour,
               "torso":u.torso,
@@ -29,15 +28,22 @@ AddEventHandler("es_customization:saveUser", function(u)
               function(exists, responseText)
                 if exists == true then
                   print "PUT was successful"
+                  print(u.haircolour)
+    
+                  target:removeMoney(250)
+
+                  savedOutfits[source] = u
+
+                  TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
                 else
                   print "PUT failed" .. responseText
                 end
-            end, database, table, queryData)
+            end, database, queryData)
           end
         else
           if responseText ~= nil then
             local queryData = {
-              "_id":target.identifier,
+              "_rev":responseText['_rev'],
               "hair":u.hair,
               "haircolor":u.haircolour,
               "torso":u.torso,
@@ -55,54 +61,58 @@ AddEventHandler("es_customization:saveUser", function(u)
               function(exists, responseText)
                 if exists == true then
                   print "PUT was successful"
+                  
+                  target:removeMoney(250)
+
+                  savedOutfits[source] = u
+
+                  TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
                 else
                   print "PUT failed" .. responseText
                 end
-            end, database, table, queryData)
+            end, database, queryData)
           end
         end
           
-    end, database, table, queryData)
-      
-    print(u.haircolour)
-    
-    target:removeMoney(250)
-
-		savedOutfits[source] = u
-
-		TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
+    end, database, queryData)
 	end)
 end)
 
 AddEventHandler("es_customization:setToPlayerSkin", function(source)
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
-			local executed_query = MySQL:executeQuery("SELECT * FROM outfits WHERE identifier = '@name'", {['@name'] = target.identifier})
-			local result = MySQL:getResults(executed_query, {'identifier', 'hair', 'haircolour', 'torso', 'torsotexture', 'torsoextra', 'torsoextratexture', 'pants', 'pantscolour', 'shoes', 'shoescolour', 'bodyaccesoire', 'undershirt', 'armor'}, "identifier")
-
-			if(result[1] ~= nil)then
-				result[1].identifier = nil
-
-				savedOutfits[source] = result[1]
-				TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
-			else
-				local default = {
-					hair = 1,
-					haircolour = 3,
-					torso = 0,
-					torsotexture = 0,
-					torsoextra = 0,
-					torsoextratexture = 0,
-					pants = 0,
-					pantscolour = 0,
-					shoes = 0,
-					shoescolour = 0,
-					bodyaccesoire = 0,
-					undershirt = 0,
-					armor = 0
-				}
-				TriggerClientEvent("es_customization:setOutfit", source, default)
-			end
+      local database = "es_customization/outfits/_find"
+      local queryData = {selector = {["identifier"] = target.identifier}}
+      db.POSTData(target.identifier, 
+        function(exists, responseText)
+          if exists == true then
+            if responseText ~= nil then
+              responseText['_id'] = nil
+              
+              savedOutfits[source] = responseText
+              TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
+            else
+              local default = {
+                hair = 1,
+                haircolour = 3,
+                torso = 0,
+                torsotexture = 0,
+                torsoextra = 0,
+                torsoextratexture = 0,
+                pants = 0,
+                pantscolour = 0,
+                shoes = 0,
+                shoescolour = 0,
+                bodyaccesoire = 0,
+                undershirt = 0,
+                armor = 0
+              }
+              TriggerClientEvent("es_customization:setOutfit", source, default)
+            end
+          else
+            print "POST failed" .. responseText
+          end
+      end, database, queryData)
 		end)
 	end
 
@@ -115,32 +125,38 @@ RegisterServerEvent("playerSpawn")
 AddEventHandler("playerSpawn", function()
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
-			local executed_query = MySQL:executeQuery("SELECT * FROM outfits WHERE identifier = '@name'", {['@name'] = target.identifier})
-			local result = MySQL:getResults(executed_query, {'identifier', 'hair', 'haircolour', 'torso', 'torsotexture', 'torsoextra', 'torsoextratexture', 'pants', 'pantscolour', 'shoes', 'shoescolour', 'bodyaccesoire', 'undershirt', 'armor'}, "identifier")
-
-			if(result[1] ~= nil)then
-				result[1].identifier = nil
-
-				savedOutfits[source] = result[1]
-				TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
-			else
-				local default = {
-					hair = 1,
-					haircolour = 3,
-					torso = 0,
-					torsotexture = 0,
-					torsoextra = 0,
-					torsoextratexture = 0,
-					pants = 0,
-					pantscolour = 0,
-					shoes = 0,
-					shoescolour = 0,
-					bodyaccesoire = 0,
-					undershirt = 0,
-					armor = 0
-				}
-				TriggerClientEvent("es_customization:setOutfit", source, default)
-			end
+      local database = "es_customization/outfits/_find"
+      local queryData = {selector = {["identifier"] = target.identifier}}
+      db.POSTData(target.identifier, 
+        function(exists, responseText)
+          if exists == true then
+            if responseText ~= nil then
+              responseText['_id'] = nil
+              
+              savedOutfits[source] = responseText
+              TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
+            else
+              local default = {
+                hair = 1,
+                haircolour = 3,
+                torso = 0,
+                torsotexture = 0,
+                torsoextra = 0,
+                torsoextratexture = 0,
+                pants = 0,
+                pantscolour = 0,
+                shoes = 0,
+                shoescolour = 0,
+                bodyaccesoire = 0,
+                undershirt = 0,
+                armor = 0
+              }
+              TriggerClientEvent("es_customization:setOutfit", source, default)
+            end
+          else
+            print "POST failed" .. responseText
+          end
+      end, database, queryData)  
 		end)
 	end
 
