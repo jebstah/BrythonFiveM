@@ -4,7 +4,7 @@
 
 local POST_database = 'essentialsmode/_find'
 local PUT_database = 'essentialsmode'
-local queryData = '{selector = {["identifier"] = ' .. identifier .. '}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}'
+local queryData = {}
 
 
 function LoadUser(identifier, source)
@@ -57,12 +57,12 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
         if(k ~= "money") then
           Users[user][k] = v
           queryData = { 
-            "_rev" = user._rev,
-            "identifier" = user.identifier,
-            "money" = (new.money or user.money),
-            "bank" = (new.bank or user.bank),
-            "group" = (new.group or user.group),
-            "permission_level" = (new.permission_level or user.permission_level)
+            _rev = user._rev,
+            identifier = user.identifier,
+            money = (new.money or user.money),
+            bank = (new.bank or user.bank),
+            group = (new.group or user.group),
+            permission_level = (new.permission_level or user.permission_level)
           }
           db.POSTData(
             function(docs)
@@ -93,12 +93,12 @@ end)
 
 AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
     queryData = { 
-      "_rev" = user._rev,
-      "identifier" = user.identifier,
-      "money" = (new.money or user.money),
-      "bank" = (new.bank or user.bank),
-      "group" = (new.group or user.group),
-      "permission_level" = (new.permission_level or user.permission_level)
+      _rev = user._rev,
+      identifier = user.identifier,
+      money = (new.money or user.money),
+      bank = (new.bank or user.bank),
+      group = (new.group or user.group),
+      permission_level = (new.permission_level or user.permission_level)
     }
     db.POSTData(
       function(docs)
@@ -138,7 +138,13 @@ local function savePlayerMoney()
   SetTimeout(60000, function()
       TriggerEvent("es:getPlayers", function(users)
           for k,v in pairs(users)do
-          queryData = { _rev = user._rev, identifier = user.identifier, money = (new.money or user.money), bank = (new.bank or user.bank), group = (new.group or user.group), permission_level = (new.permission_level or user.permission_level) }
+          queryData = { 
+            _rev = user._rev,
+            identifier = user.identifier,
+            money = (new.money or user.money),
+            bank = (new.bank or user.bank),
+            group = (new.group or user.group),
+            permission_level = (new.permission_level or user.permission_level) }
           db.POSTData(
             function(docs)
               for i in pairs({money = v.money})do
