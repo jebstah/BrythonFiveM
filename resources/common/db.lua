@@ -49,3 +49,12 @@ function db.DELETEData(identifier, callback, database)
       end
   end, "DELETE", "", {Authorization = "Basic " .. auth})
 end
+
+-- First run check.
+db.GETData("",
+  function(exist, rText)
+    if not exists then
+      db.PUTData("",function()end,"essentialmode", "")
+    end
+  end,
+'essentialmode')
