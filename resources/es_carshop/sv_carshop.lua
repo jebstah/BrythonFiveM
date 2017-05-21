@@ -2,7 +2,6 @@ local plugin_data = {}
 local vehicle_data = {}
 local plates = {}
 local vOptions = {}
-local db = require '../common/db.lua'
 local POST_database = 'es_carshop/_find'
 local PUT_database = 'es_carshop'
 local queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
