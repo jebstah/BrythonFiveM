@@ -7,20 +7,20 @@ AddEventHandler("es_customization:saveUser", function(u)
     local queryData = [[{selector = {["identifier"] = target.identifier}}]]
     db.POSTData(function(exists, responseText)
         local queryData = [[{
-            "_rev":responseText['_rev'],
-            "hair":u.hair,
-            "haircolor":u.haircolour,
-            "torso":u.torso,
-            "torsotexture":u.torsotexture,
-            "torsoextra":u.torsoextra,
-            "torsoextratexture":u.torsoextratexture,
-            "pants":u.pants,
-            "pantscolor":u.pantscolour,
-            "shoes":u.shoes,
-            "shoescolor":u.shoescolour,
-            "bodyaccessory":u.bodyaccesorie,
-            "undershirt":u.undershirt,
-            "armor":u.armor}]]
+            "_rev":]] .. responseText['_rev'] .. [[,
+            "hair":]] .. u.hair .. [[,
+            "haircolor":]] .. u.haircolour .. [[,
+            "torso":]] .. u.torso .. [[,
+            "torsotexture":]] .. u.torsotexture .. [[,
+            "torsoextra":]] .. u.torsoextra .. [[,
+            "torsoextratexture":]] .. u.torsoextratexture .. [[,
+            "pants":]] .. u.pants .. [[,
+            "pantscolor":]] .. u.pantscolour .. [[,
+            "shoes":]] .. u.shoes .. [[,
+            "shoescolor":]] .. u.shoescolour .. [[,
+            "bodyaccessory":]] .. u.bodyaccesorie .. [[,
+            "undershirt":]] .. u.undershirt .. [[,
+            "armor":]] .. u.armor .. [[}]]
         db.PUTData(target.identifier, 
           function(exists, responseText)
             if exists == true then
@@ -44,7 +44,7 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local database = "es_customization/outfits/_find"
-      local queryData = [[{selector = {["identifier"] = target.identifier}}]]
+      local queryData = [[{selector = {["identifier"] = ]] .. target.identifier .. [[}}]]
       db.POSTData(function(exists, responseText)
         if exists == true then
           if responseText ~= nil then
@@ -87,7 +87,7 @@ AddEventHandler("playerSpawn", function()
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
       local database = "es_customization/outfits/_find"
-      local queryData = [[{selector = {["identifier"] = target.identifier}}]]
+      local queryData = [[{selector = {["identifier"] = ]] .. target.identifier .. [[}}]]
       db.POSTData(function(exists, responseText)
         if exists == true then
           if responseText ~= nil then
