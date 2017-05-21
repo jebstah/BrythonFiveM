@@ -4,7 +4,7 @@ RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
     local database = "es_customization/outfits/_find"
-    local queryData = [[{selector = {["identifier"] = target.identifier}}]]
+    local queryData = [[{selector = {["identifier"] = ]] .. target.identifier .. [[}}]]
     db.POSTData(function(exists, responseText)
         local queryData = [[{
             "_rev":]] .. responseText['_rev'] .. [[,
