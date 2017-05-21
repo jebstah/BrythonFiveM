@@ -1,9 +1,11 @@
 local savedOutfits = {}
+local POST_database = "es_customization/_find"
+local PUT_database = "es_customization"
 
 RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
 	TriggerEvent("es:getPlayerFromId", source, function(target)
-    local queryData = {selector = {["identifier"] = target.identifier}
+    local queryData = {selector = {["identifier"] = target.identifier}}
     db.POSTData(function(exists, responseText)
         if responseText == nil then
           db.GETData("",
@@ -38,7 +40,7 @@ AddEventHandler("es_customization:saveUser", function(u)
                     else
                       print "Unable to save outfit " .. responseText
                     end
-                end, "es_customization/outfits", queryData) 
+                end, PUT_database, queryData) 
               end
             end, '_uuids')
         else
@@ -72,16 +74,16 @@ AddEventHandler("es_customization:saveUser", function(u)
                     else
                       print "Unable to save outfit " .. responseText
                     end
-                end, "es_customization/outfits", queryData)
+                end, PUT_database, queryData)
         end        
-    end, "es_customization/outfits/_find", queryData)
+    end, POST_database, queryData)
 	end)
 end)
 
 AddEventHandler("es_customization:setToPlayerSkin", function(source)
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
-      local queryData = [[{selector = {["identifier"] = ]] .. target.identifier .. [[}}]]
+      local queryData = {selector = {["identifier"] = target.identifier}}
       db.POSTData(function(exists, responseText)
         if exists then
           if responseText ~= nil then
@@ -123,7 +125,7 @@ RegisterServerEvent("playerSpawn")
 AddEventHandler("playerSpawn", function()
 	if(savedOutfits[source] == nil)then
 		TriggerEvent("es:getPlayerFromId", source, function(target)
-      local queryData = {selector = {["identifier"] =  target.identifier .. }}
+      local queryData = {selector = {["identifier"] =  target.identifier }}
       db.POSTData(function(exists, responseText)
         if exists then
           if responseText ~= nil then
