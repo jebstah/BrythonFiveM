@@ -6,7 +6,7 @@ auth = clr.System.Convert.ToBase64String(bytespassword);
 
 db = {}
 
-function db.GETData(identifier, callback, database)Oka
+function db.GETData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local responseText = json.decode(rText)
       if err > 299 then
@@ -17,7 +17,7 @@ function db.GETData(identifier, callback, database)Oka
   end, "GET", "", {Authorization = "Basic " .. auth})
 end
 
-function db.PUTData(identifier, callback, database, table, queryData)
+function db.PUTData(identifier, callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local responseText = json.decode(rText)
       if err > 299 then
@@ -28,7 +28,7 @@ function db.PUTData(identifier, callback, database, table, queryData)
   end, "PUT", json.encode(queryData), {["Content-type"] = 'application/json', Authorization = "Basic " .. auth})
 end
 
-function db.POSTData(identifier, callback, database, table, queryData)
+function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
       local responseText = json.decode(rText)
       if err > 299 then
@@ -39,7 +39,7 @@ function db.POSTData(identifier, callback, database, table, queryData)
   end, "POST", json.encode(queryData), {["Content-type"] = 'application/json', Authorization = "Basic " .. auth})
 end
 
-function db.DELETEData(identifier, callback, database, table)
+function db.DELETEData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local responseText = json.decode(rText)
       if err > 299 then
