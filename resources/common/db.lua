@@ -8,9 +8,9 @@ db = {}
 
 function db.GETData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
-      local doc = json.decode(rText).docs
-      if (doc[1]) then
-        callback(doc[1])
+      local uuids = json.decode(rText).uuids
+      if (uuids[1]) then
+        callback(uuids[1])
       else
         callback(false)
       end
@@ -19,9 +19,9 @@ end
 
 function db.PUTData(identifier, callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
-      local doc = json.decode(rText).docs
-      if (doc[1]) then
-        callback(doc[1])
+      local response = json.decode(rText)
+      if (response.ok) then
+        callback(true)
       else
         callback(false)
       end
@@ -41,9 +41,9 @@ end
 
 function db.DELETEData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
-      local doc = json.decode(rText).docs
-      if (doc[1]) then
-        callback(doc[1])
+      local response = json.decode(rText)
+      if (response.ok) then
+        callback(true)
       else
         callback(false)
       end

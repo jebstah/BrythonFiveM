@@ -9,8 +9,8 @@ AddEventHandler("es_customization:saveUser", function(u)
     db.POSTData(function(doc)
         if doc then
           db.GETData("",
-            function(doc)
-              if doc then
+            function(uuid)
+              if uuid then
                 local queryData = {
                   "identifier":target.identifier,
                   "hair":u.hair,
@@ -27,9 +27,9 @@ AddEventHandler("es_customization:saveUser", function(u)
                   "undershirt":u.undershirt,
                   "armor":u.armor}
                   
-                db.PUTData(rText.uuids[1], 
-                  function(doc)
-                    if doc then
+                db.PUTData(uuid, 
+                  function(success)
+                    if success then
                       print(u.haircolour)
 
                       target:removeMoney(250)
@@ -45,7 +45,7 @@ AddEventHandler("es_customization:saveUser", function(u)
             end, '_uuids')
         else
           local queryData = {
-                  "_rev":responseText._rev,
+                  "_rev":doc._rev,
                   "identifier":target.identifier,
                   "hair":u.hair,
                   "haircolor":u.haircolour,
@@ -61,9 +61,9 @@ AddEventHandler("es_customization:saveUser", function(u)
                   "undershirt":u.undershirt,
                   "armor":u.armor}
                   
-                db.PUTData(responseText._id, 
-                  function(doc)
-                    if doc then
+                db.PUTData(doc._id, 
+                  function(success)
+                    if success then
                       print(u.haircolour)
 
                       target:removeMoney(250)
@@ -86,9 +86,9 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
       local queryData = {selector = {["identifier"] = target.identifier}}
       db.POSTData(function(doc)
         if doc then
-          responseText._id = nil
+          doc._id = nil
             
-            savedOutfits[source] = responseText
+            savedOutfits[source] = doc
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
         else
           print("Unable to get player from id")
@@ -125,9 +125,9 @@ AddEventHandler("playerSpawn", function()
       local queryData = {selector = {["identifier"] =  target.identifier }}
       db.POSTData(function(doc)
         if doc then
-          responseText._id = nil
+          doc._id = nil
             
-            savedOutfits[source] = responseText
+            savedOutfits[source] = doc
             TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
         else
           print("Unable to get player from id")
