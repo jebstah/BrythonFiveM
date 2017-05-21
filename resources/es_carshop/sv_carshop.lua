@@ -1,18 +1,26 @@
 local plugin_data = {}
 local vehicle_data = {}
 local plates = {}
-
+local vOptions = nil
 local db = require '../common/db.lua'
+local POST_database = 'es_carshop/outfits/_find'
+local PUT_database = 'es_carshop/'..target.identifier
+local queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
 
-vehicle_data[source] = AddEventHandler("es:playerLoaded", db.POSTData(source, callback, "vehicles", "_find", '{ "selector" : { "identifier" : '..source ..'}}')
-end)
-
-local send = {}
-for k,v in ipairs(vehicle_data[identifier])do
-  send[v.model] = true
-end
-
-	TriggerClientEvent("es_carshop:sendOwnedVehicles", source, send)
+AddEventHandler("es:playerLoaded", 
+  function(source, target) 
+    queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+    db.POSTData(
+      function(exist, rText)
+        if exist then
+          local send = {}
+          for k,v in ipairs(rText[target.identifier])do
+            send[v.model] = true
+          end
+          TriggerClientEvent("es_carshop:sendOwnedVehicles", source, send)
+        end
+      end, POST_database, queryData)
+  end
 end)
 
 function get3DDistance(x1, y1, z1, x2, y2, z2)
@@ -123,17 +131,21 @@ AddEventHandler("es:reload", function()
 	TriggerEvent('es:getPlayers', function(players)
 		for i,v in pairs(players) do
 			if(GetPlayerName(i))then
-				vehicle_data[i] = TriggerEvent('es:getPlayerFromId', i, db.GETData(source, callback, "vehicles", "_find", '{ "selector" : {"identifier" : ' .. source .. '}}')
-end)
-					local send = {}
-					for k,v in ipairs(vehicle_data[i])do
-						send[v.model] = true
-					end
-
-					TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
-				end)
+				TriggerEvent('es:getPlayerFromId', i, 
+          function(target)
+          queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+          db.POSTData(
+            function(exist, rText)
+              local send = {}
+              for k,v in ipairs(rText[i])do
+                send[v.model] = true
+              end
+              TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+            end,
+            POST_Database, queryData)
+          end)
+				end
 			end
-		end
 	end)
 end)
 
@@ -155,28 +167,27 @@ AddEventHandler("onResourceStart", function(rs)
 	if(rs ~= 'es_carshop')then
 		return
 	end
-
 	SetTimeout(2000, function()
 		TriggerEvent('es:getPlayers', function(players)
 			for i,v in pairs(players) do
-				if(GetPlayerName(i))then
-					TriggerEvent('es:getPlayerFromId', i, function(target)
-						if(target)then
-							vehicle_data[i] = TriggerEvent('es:getPlayerFromId', i, db.POSTData(source, callback, "vehicles", "_find", '{ "selector" : {"identifier" : ' .. source .. '}}')
-end)
-							local send = {}
-							for k,v in ipairs(vehicle_data[i])do
-								send[v.model] = true
-							end
-
-							TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
-						end
-					end)
+			if(GetPlayerName(i))then
+				TriggerEvent('es:getPlayerFromId', i, 
+          function(target)
+          queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+          db.POSTData(
+            function(exist, rText)
+              local send = {}
+              for k,v in ipairs(rText[i])do
+                send[v.model] = true
+              end
+              TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+            end,
+            POST_Database, queryData)
+          end)
 				end
 			end
 		end)
-
-		end)
+  end)
 end)
 
 TriggerEvent('es:addCommand', 'deletevehicle', function(source, args, user)
@@ -318,7 +329,7 @@ AddEventHandler('es_carshop:vehicleCustom', function(model, data)
 								vehicle_data[source][k].grills = data.grills
 								vehicle_data[source][k].spoiler = data.spoiler
 
-								setDynamicMulti(source, model, {
+                vOptions = {
 									{row = "colour", value = pstring},
 									{row = "scolour", value = sstring},
 									{row = "wheels", value = data.wheels},
@@ -327,7 +338,8 @@ AddEventHandler('es_carshop:vehicleCustom', function(model, data)
 									{row = "exhausts", value = data.exhausts},
 									{row = "grills", value = data.grills},
 									{row = "spoiler", value = data.spoiler},
-								})
+								}
+								setDynamicMulti(source, model, vOptions)
 
 								TriggerClientEvent('chatMessage', source, "CUSTOMS", {255, 0, 0}, "Vehicle customization has been saved. Your customization options will now stay forever until changed.")
 							end)
@@ -344,13 +356,37 @@ AddEventHandler('es_carshop:vehicleCustom', function(model, data)
 end)
 
 function setDynamicMulti(source, vehicle, options)
-  info = db.PUTData(source, callback, "vehicle", "_find", '{ "selector" : {"identifier" : ' .. source .. '}}')
-  str
-  for k,v in ipairs(options)do 
-    str = str..', '..k..':'..v 
+  for k,v in ipairs(options)do
+    str = str .. ',"' .. v.row .. '":"' .. v.value .. '"'
   end
-	TriggerEvent('es:getPlayerFromId', source, function(source, options)  db.POSTData(source, callback, "vehicle", info["_id"], '{ "_id":'..info["_id"]..', "_rev":'..info["_rev"]..','..str..'}') 
-	end)
+  TriggerEvent('es:getPlayerFromId', source, 
+    function(user)
+      local queryData = '{selector = {["identifier"] = '..user.identifier..',["model"] = ' .. vehicle   ..' }}'
+      db.POSTData(
+        function(exist, rText) 
+          if exist then
+            queryData = '{ "_rev":' .. rText['_rev'] .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
+            db.PUTData(rText['_id'],function()end,PUT_Database,queryData)
+          else
+            print("No record found in database. Creating one.")
+            db.GETData("",
+              function(exist, rText)
+                if exists then
+                  db.PUTData(rText['uuid'],
+                    function(exist, rText)
+                      if not exist then
+                        print('Error importing data to the Database!')
+                      else
+                        queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"
+                      end
+                    end,
+                    PUT_Database, queryData)
+                end
+              end,
+              '_uuids')
+          end
+        end, POST_database, queryData)
+    end)
 end
 
 function addVehicle(s, v)
@@ -361,22 +397,24 @@ function addVehicle(s, v)
 
 		if(vehicle_data[s] == nil)then
 			vehicle_data[s] = {}
-			vehicle_data[s][1] = {owner = user.identifier, model = v, colour = '0,0,0', scolour = '0,0,0', plate = plate}
-
-			vehicle_data[source][1].wheels = 0
-			vehicle_data[source][1].windows = 0
-			vehicle_data[source][1].platetype = 0
-			vehicle_data[source][1].exhausts = 0
-			vehicle_data[source][1].grills = 0
-			vehicle_data[source][1].spoiler = 0
-
-
+			vehicle_data[s][1] = {owner = user.identifier, model = v, colour = '0,0,0', scolour = '0,0,0', plate = plate, wheels = 0, windows = 0, platetype = 0, exhausts = 0, grills = 0, spoiler = 0}
 		else
-			vehicle_data[s][#vehicle_data[s] + 1] = {owner = user.identifier, model = v, colour = '0,0,0', scolour = '0,0,0'}
+			vehicle_data[s][#vehicle_data[s] + 1] = {owner = user.identifier, model = v, colour = '0,0,0', scolour = '0,0,0', plate = plate, wheels = 0, windows = 0, platetype = 0, exhausts = 0, grills = 0, spoiler = 0}
 		end
-    uuid = db.GETData(source, callback, "vehicle", "_uuid")
-    db.PUTData(source, callback, "vehicle", uuid[1], '{ "owner":"'.. user.identifier..'",  "model": '..v..',  "colour": "0,0,0",  "scolour": "0,0,0",  "plate":'..plate..',  "wheels": 0,  "windows": 0,  "platetype": 0,  "exhausts": 0,  "grills": 0,  "spoiler": 0}')
-
+    
+    vOptions = {
+									{row = "colour", value = '0,0,0'},
+									{row = "scolour", value = '0,0,0'},
+                  {row = "plate", value = plate},
+									{row = "wheels", value = 0},
+									{row = "windows", value = 0},
+									{row = "platetype", value = 0},
+									{row = "exhausts", value = 0},
+									{row = "grills", value = 0},
+									{row = "spoiler", value = 0},
+								}
+    setDynamicMulti(s, v, vOptions)
+    
 		plates[string.lower(plate)] = s
 	end)
 end
