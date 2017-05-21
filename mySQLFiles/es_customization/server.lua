@@ -7,9 +7,7 @@ AddEventHandler("es_customization:saveUser", function(u)
     local queryData = {selector = {["identifier"] = target.identifier}}
     db.POSTData(target.identifier, 
       function(exists, responseText)
-        if exists == false then
-          if responseText == nil then
-            local queryData = {
+        local queryData = {
               "_rev":responseText['_rev'],
               "hair":u.hair,
               "haircolor":u.haircolour,
@@ -38,42 +36,7 @@ AddEventHandler("es_customization:saveUser", function(u)
                 else
                   print "PUT failed" .. responseText
                 end
-            end, database, queryData)
-          end
-        else
-          if responseText ~= nil then
-            local queryData = {
-              "_rev":responseText['_rev'],
-              "hair":u.hair,
-              "haircolor":u.haircolour,
-              "torso":u.torso,
-              "torsotexture":u.torsotexture,
-              "torsoextra":u.torsoextra,
-              "torsoextratexture":u.torsoextratexture,
-              "pants":u.pants,
-              "pantscolor":u.pantscolour,
-              "shoes":u.shoes,
-              "shoescolor":u.shoescolour,
-              "bodyaccessory":u.bodyaccesorie,
-              "undershirt":u.undershirt,
-              "armor":u.armor}
-            db.PUTData(target.identifier, 
-              function(exists, responseText)
-                if exists == true then
-                  print "PUT was successful"
-                  
-                  target:removeMoney(250)
-
-                  savedOutfits[source] = u
-
-                  TriggerClientEvent("chatMessage", source, "CLOTHING", {255, 0, 0}, "You saved your outfit, it will stay forever even if you reconnect. You can change it back at a clothing store.")
-                else
-                  print "PUT failed" .. responseText
-                end
-            end, database, queryData)
-          end
-        end
-          
+            end, database, queryData)          
     end, database, queryData)
 	end)
 end)
