@@ -112,7 +112,7 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
         else
           print "Unable to get player from id " .. responseText
         end
-      end, "es_customization/outfits/_find", queryData)
+      end, POST_database, queryData)
 		end)
 	end
 
@@ -154,7 +154,7 @@ AddEventHandler("playerSpawn", function()
         else
           print "Unable to get player from id " .. responseText
         end
-      end, "es_customization/outfits/_find", queryData)  
+      end, POST_database, queryData)  
 		end)
 	end
 
