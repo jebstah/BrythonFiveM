@@ -17,6 +17,17 @@ function db.GETData(identifier, callback, database)
   end, "GET", "", {Authorization = "Basic " .. auth})
 end
 
+function db.GETDatabase(callback, database)
+  PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
+      local response = json.decode(rText)
+      if (response.ok) then
+        callback(true)
+      else
+        callback(false)
+      end
+  end, "GET", "", {Authorization = "Basic " .. auth})
+end
+
 function db.PUTData(identifier, callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local response = json.decode(rText)
@@ -52,8 +63,8 @@ end
 
 -- First run check.
 function firstRun(database)
-db.POSTData(function(docs)
-    if (docs) then
+db.GETDatabase(function(success)
+    if (success) then
       db.PUTData("",function()end,database, "")
     end
   end,
