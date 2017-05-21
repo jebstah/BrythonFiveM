@@ -6,7 +6,6 @@ local POST_database = 'essentialsmode/_find'
 local PUT_database = 'essentialsmode'
 local queryData = {}
 
-
 function LoadUser(identifier, source)
   local new = false
   queryData = {selector = {["identifier"] = identifier }}

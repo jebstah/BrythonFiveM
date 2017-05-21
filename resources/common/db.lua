@@ -52,9 +52,8 @@ end
 
 -- First run check.
 function firstRun(database)
-db.GETData("",
-  function(exist, rText)
-    if not exists then
+db.POSTData(function(docs)
+    if not docs then
       db.PUTData("",function()end,database, "")
     end
   end,
