@@ -17,7 +17,7 @@ settings.sessionSettings = {}
 AddEventHandler('playerDropped', function()
     if(Users[source])then
       TriggerEvent("es:playerDropped", Users[source])
-      db.PUTData(Users[source].identifier, 
+      db.PUTData(Users[source]._id, 
         function(success)
           if not success then
             print("Issue with putting data into the database")

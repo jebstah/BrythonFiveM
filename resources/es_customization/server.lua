@@ -39,7 +39,7 @@ AddEventHandler("es_customization:saveUser", function(u)
               end
           end, PUT_database, queryData)
         else
-          db.GETData("",
+          db.GETData(
             function(uuid)
               if uuid then
                 local queryData = {

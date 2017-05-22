@@ -8,10 +8,11 @@ local queryData = {}
 
 function LoadUser(identifier, source, new)
   queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
-  db.POSTData(function(docs)
+  db.POSTData(
+    function(docs)
       local group = groups[docs[1].group]
 
-      Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
+      Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
 
       TriggerEvent('es:playerLoaded', source, Users[source])
 
@@ -40,14 +41,20 @@ AddEventHandler('es:getPlayers', function(callback)
   end)
 
 function registerUser(identifier, source)
-  queryData = {selector = {["identifier"] = identifier}}
+  print("calling registerUser POSTData func")
   db.POSTData(function(doc)
+      print(json.encode(doc))
       if (doc) then
+        print("calling LoadUser func")
         LoadUser(identifier, source, false)
       else
+        print("calling registerUser GETData func")
+        print(json.encode(queryData))
         db.GETData(
           function(uuid)
             queryData = { identifier = identifier, money = 0, bank = 0, group = "user", permission_level = 0 }
+            print("calling registerUser PUTData func")
+            print(json.encode(queryData))
             db.PUTData(uuid[1], 
               function(success)
                 if success then
@@ -56,7 +63,7 @@ function registerUser(identifier, source)
               end, PUT_database, queryData)
           end, '_uuids')
       end
-    end, POST_database,queryData)
+    end, POST_database,'{selector : {["identifier"] :'..identifier..'}}')
 end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)

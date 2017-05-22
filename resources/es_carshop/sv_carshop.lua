@@ -368,7 +368,7 @@ TriggerEvent('es:getPlayerFromId', source,
           db.PUTData(docs[1]._id,function()end,PUT_Database,queryData)
         else
           print("No record found in database. Creating one.")
-          db.GETData("",
+          db.GETData(
             function(uuid)
               if uuid then
                 db.PUTData(uuid,

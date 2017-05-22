@@ -12,6 +12,7 @@ files {
 }
 
 -- Server
+server_script '../common/db.lua'
 server_script 'server/classes/player.lua'
 server_script 'server/classes/groups.lua'
 server_script 'server/player/login.lua'

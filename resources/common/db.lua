@@ -6,9 +6,10 @@ auth = clr.System.Convert.ToBase64String(bytespassword);
 
 db = {}
 
-function db.GETData(identifier, callback, database)
-  PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
+function db.GETData(callback, database)
+  PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
       local uuids = json.decode(rText).uuids
+      print("Query:" .. serverUrl .. port .. "/" .. database .. "rText:" .. rText)
       if (uuids) then
         callback(uuids)
       else
@@ -20,6 +21,7 @@ end
 function db.GETDatabase(callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
       local response = json.decode(rText)
+      print("Query:" .. serverUrl .. port .. "/" .. database .. "rText:" .. rText)
       if (response.ok) then
         callback(true)
       else
@@ -31,6 +33,7 @@ end
 function db.PUTData(identifier, callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local response = json.decode(rText)
+      print("Query:" .. serverUrl .. port .. "/" .. database .. "/" .. identifier .. "rText:" .. rText)
       if (response.ok) then
         callback(true)
       else
@@ -41,9 +44,10 @@ end
 
 function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-      local docs = json.decode(rText).docs
-      if (docs._id) then
-        callback(docs)
+      local allDocs = json.decode(rText)
+      print("Query:" .. serverUrl .. port .. "/" .. database .. "rText:" .. rText)
+      if (allDocs[1]._id) then
+        callback(allDocs)
       else
         callback(false)
       end
@@ -53,6 +57,7 @@ end
 function db.DELETEData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
       local response = json.decode(rText)
+      print("Query:" .. serverUrl .. port .. "/" .. database .. "/" .. identifier .. "rText:" .. rText)
       if (response.ok) then
         callback(true)
       else
