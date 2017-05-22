@@ -52,49 +52,50 @@ function registerUser(identifier, source)
                 end
               end, 'essentialmode', queryData)
           end, '_uuids')
-      end, 'essentialmode/' .. identifier)
-  end
+      end
+    end, 'essentialmode/' .. identifier)
+end
 
-  AddEventHandler("es:setPlayerData", function(user, k, v, callback)
-      if(Users[user])then
-        if(Users[user][k])then
+AddEventHandler("es:setPlayerData", function(user, k, v, callback)
+    if(Users[user])then
+      if(Users[user][k])then
 
-          if(k ~= "money") then
-            Users[user][k] = v
-            queryData = { 
-              _rev = user._rev,
-              identifier = user.identifier,
-              money = (new.money or user.money),
-              bank = (new.bank or user.bank),
-              group = (new.group or user.group),
-              permission_level = (new.permission_level or user.permission_level)
-            }
-            db.POSTData(
-              function(docs)
-                if docs then
-                  for i in pairs({[k] = v})do
-                  user[i] = update[i]
-                end
-                queryData = user
-                db.PUTData(docs[1]._id,
-                  function(success)
-                    if not success then
-                      print('Error importing data to the Database!')
-                    end
-                  end,PUT_Database, queryData)
+        if(k ~= "money") then
+          Users[user][k] = v
+          queryData = { 
+            _rev = user._rev,
+            identifier = user.identifier,
+            money = (new.money or user.money),
+            bank = (new.bank or user.bank),
+            group = (new.group or user.group),
+            permission_level = (new.permission_level or user.permission_level)
+          }
+          db.POSTData(
+            function(docs)
+              if docs then
+                for i in pairs({[k] = v})do
+                user[i] = update[i]
               end
-            end,POST_database,queryData)
-        end
-        if(k == "group")then
-          Users[user].group = groups[v]
-        end
-      else
-        callback("Column does not exist!")
+              queryData = user
+              db.PUTData(docs[1]._id,
+                function(success)
+                  if not success then
+                    print('Error importing data to the Database!')
+                  end
+                end,PUT_Database, queryData)
+            end
+          end,POST_database,queryData)
+      end
+      if(k == "group")then
+        Users[user].group = groups[v]
       end
     else
-      callback("User could not be found!")
+      callback("Column does not exist!")
     end
-  end)
+  else
+    callback("User could not be found!")
+  end
+end)
 
 AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
     queryData = { 
