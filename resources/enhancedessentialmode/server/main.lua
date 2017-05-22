@@ -17,8 +17,12 @@ settings.sessionSettings = {}
 AddEventHandler('playerDropped', function()
 	if(Users[source])then
 		TriggerEvent("es:playerDropped", Users[source])
-
-		db.updateUser(Users[source].identifier, {money = Users[source].money, Users[source].bank}, function()
+		db.PUTData(Users[source].identifier, 
+      function(success)
+        if not success then
+          print("Issue with putting data into the database")
+        end
+        end,'essentialmode',{_rev = Users[source]._rev,_id = Users[source]._id, identifier = Users[source].identifier, money = Users[source].money, bank = Users[source].bank, group = Users[source].group, permission_level = Users[source].permission_level})
 			Users[source] = nil
 		end)
 	end

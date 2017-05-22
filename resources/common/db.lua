@@ -8,7 +8,7 @@ db = {}
 
 function db.GETData(identifier, callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. identifier, function(err, rText, headers)
-      local uuids = json.decode(rText).uuids
+      local uuids = json.decode(rText).uuids[1]
       if (uuids) then
         callback(uuids)
       else
