@@ -4,11 +4,10 @@
 
 local POST_database = 'essentialmode/_find'
 local PUT_database = 'essentialmode'
-local POSTqueryData = {}
-local PUTqueryData = {}
+local queryData = {}
 
 function LoadUser(identifier, source, new)
-  POSTqueryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
+  queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
   db.POSTData(function(docs)
       local group = groups[docs[1].group]
 
@@ -22,7 +21,7 @@ function LoadUser(identifier, source, new)
       if(new)then
         TriggerEvent('es:newPlayerLoaded', source, Users[source])
       end
-    end,POST_database,POSTqueryData)
+    end,POST_database,queryData)
 end
 
 function stringsplit(self, delimiter)
@@ -41,23 +40,23 @@ AddEventHandler('es:getPlayers', function(callback)
   end)
 
 function registerUser(identifier, source)
-  POSTqueryData = {selector = {["identifier"] = identifier}}
+  queryData = {selector = {["identifier"] = identifier}}
   db.POSTData(function(doc)
       if (doc) then
         LoadUser(identifier, source, false)
       else
         db.GETData(
           function(uuid)
-            PUTqueryData = { identifier = identifier, money = 0, bank = 0, group = "user", permission_level = 0 }
+            queryData = { identifier = identifier, money = 0, bank = 0, group = "user", permission_level = 0 }
             db.PUTData(uuid, 
               function(success)
                 if success then
                   LoadUser(identifier, source, true)
                 end
-              end, PUT_database, PUTqueryData)
+              end, PUT_database, queryData)
           end, '_uuids')
       end
-    end, POST_database,POSTqueryData)
+    end, POST_database,queryData)
 end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
@@ -66,7 +65,7 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
 
         if(k ~= "money") then
           Users[user][k] = v
-          POSTqueryData = { 
+          queryData = { 
             _rev = user._rev,
             identifier = user.identifier,
             money = (new.money or user.money),
@@ -80,15 +79,15 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
                 for i in pairs({[k] = v})do
                 user[i] = update[i]
               end
-              PUTqueryData = user
+              queryData = user
               db.PUTData(docs[1]._id,
                 function(success)
                   if not success then
                     print('Error importing data to the Database!')
                   end
-                end,PUT_Database, PUTqueryData)
+                end,PUT_Database, queryData)
             end
-          end,POST_database,POSTqueryData)
+          end,POST_database,queryData)
       end
       if(k == "group")then
         Users[user].group = groups[v]
@@ -102,7 +101,7 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
 end)
 
 AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
-    PUTqueryData = { 
+    queryData = { 
       _rev = user._rev,
       identifier = user.identifier,
       money = (new.money or user.money),
@@ -110,20 +109,19 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
       group = (new.group or user.group),
       permission_level = (new.permission_level or user.permission_level)
     }
-    POSTqueryData = {selector = {["identifier"] = identifier}}
     db.POSTData(
       function(docs)
         for i in pairs({[k] = v})do
         user[i] = update[i]
       end
-      PUTqueryData = user
+      queryData = user
       db.PUTData(docs[1]._id,
         function(success)
           if not success then
             print('Error importing data to the Database!')
           end
-        end,PUT_Database, PUTqueryData)
-    end,POST_database,POSTqueryData)
+        end,PUT_Database, queryData)
+    end,POST_database,queryData)
 end)
 
 AddEventHandler("es:getPlayerFromId", function(user, cb)
@@ -139,11 +137,11 @@ AddEventHandler("es:getPlayerFromId", function(user, cb)
   end)
 
 AddEventHandler("es:getPlayerFromIdentifier", function(identifier, callback)
-    POSTqueryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
+    queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
     db.POSTData(
       function(docs)
         callback(docs[1])
-      end,POST_database,POSTqueryData)
+      end,POST_database,queryData)
   end)
 
 -- Function to update player money every 60 seconds.
@@ -151,23 +149,26 @@ local function savePlayerMoney()
   SetTimeout(60000, function()
       TriggerEvent("es:getPlayers", function(users)
           for k,v in pairs(users)do
-          PUTqueryData = { 
-            _rev = v._rev,
-            identifier = v.identifier,
-            money = (v.money),
-            bank = (v.bank),
-            group = (v.group),
-            permission_level = (v.permission_level)
-          }
+          queryData = { 
+            _rev = user._rev,
+            identifier = user.identifier,
+            money = (new.money or user.money),
+            bank = (new.bank or user.bank),
+            group = (new.group or user.group),
+            permission_level = (new.permission_level or user.permission_level) }
           db.POSTData(
             function(docs)
+              for i in pairs({money = v.money})do
+              user[i] = update[i]
+            end
+            queryData = user
             db.PUTData(docs[1]._id,
               function(success)
                 if not success then
                   print('Error importing data to the Database!')
                 end
-              end,PUT_Database, PUTqueryData)
-          end,POST_database, POSTqueryData)
+              end,PUT_Database, queryData)
+          end,POST_database, queryData)
       end
     end)
 
