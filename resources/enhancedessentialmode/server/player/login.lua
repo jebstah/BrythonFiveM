@@ -7,19 +7,21 @@ local PUT_database = 'essentialmode'
 local queryData = {}
 
 function LoadUser(identifier, source, new)
+  queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
+  db.POSTData(function(docs)
+      local group = groups[docs[1].group]
 
-  local group = groups[docs[1].group]
+      Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
 
-  Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
+      TriggerEvent('es:playerLoaded', source, Users[source])
 
-  TriggerEvent('es:playerLoaded', source, Users[source])
+      TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
+      TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
 
-  TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
-  TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
-
-  if(new)then
-    TriggerEvent('es:newPlayerLoaded', source, Users[source])
-  end
+      if(new)then
+        TriggerEvent('es:newPlayerLoaded', source, Users[source])
+      end
+    end,POST_database,queryData)
 end
 
 function stringsplit(self, delimiter)
@@ -51,10 +53,10 @@ function registerUser(identifier, source)
                 if success then
                   LoadUser(identifier, source, true)
                 end
-              end, 'essentialmode', queryData)
+              end, PUT_database, queryData)
           end, '_uuids')
       end
-    end, 'essentialmode/_find',queryData)
+    end, POST_database,queryData)
 end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
@@ -122,22 +124,24 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
     end,POST_database,queryData)
 end)
 
-AddEventHandler("es:getPlayerFromId", function(user, callback)
+AddEventHandler("es:getPlayerFromId", function(user, cb)
     if(Users)then
       if(Users[user])then
-        callback(Users[user])
+        cb(Users[user])
       else
-        callback(nil)
+        cb(nil)
       end
     else
-      callback(nil)
+      cb(nil)
     end
   end)
 
 AddEventHandler("es:getPlayerFromIdentifier", function(identifier, callback)
-    db.retrieveUser(identifier, function(user)
-        callback(user)
-      end)
+    queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
+    db.POSTData(
+      function(docs)
+        callback(docs[1])
+      end,POST_database,queryData)
   end)
 
 -- Function to update player money every 60 seconds.
