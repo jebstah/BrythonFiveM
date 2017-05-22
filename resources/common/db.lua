@@ -42,7 +42,7 @@ end
 function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
       local docs = json.decode(rText).docs
-      if (docs) then
+      if (docs._id) then
         callback(docs)
       else
         callback(false)
