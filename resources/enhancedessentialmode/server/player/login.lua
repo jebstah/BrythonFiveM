@@ -6,28 +6,20 @@ local POST_database = 'essentialmode/_find'
 local PUT_database = 'essentialmode'
 local queryData = {}
 
-function LoadUser(identifier, source)
-  local new = false
-  queryData = {selector = {["identifier"] = identifier }}
-  db.POSTData(function(docs)
-      if docs then
-        new = false
-      else
-        new = true
-      end
-      local group = groups[docs[1].group]
+function LoadUser(identifier, source, new)
 
-      Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
+  local group = groups[docs[1].group]
 
-      TriggerEvent('es:playerLoaded', source, Users[source])
+  Users[source] = Player(source, user.permission_level, user.money, user.bank, user.identifier, group)
 
-      TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
-      TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
+  TriggerEvent('es:playerLoaded', source, Users[source])
 
-      if(new)then
-        TriggerEvent('es:newPlayerLoaded', source, Users[source])
-      end
-    end,POST_database,queryData)
+  TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
+  TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
+
+  if(new)then
+    TriggerEvent('es:newPlayerLoaded', source, Users[source])
+  end
 end
 
 function stringsplit(self, delimiter)
@@ -48,7 +40,7 @@ AddEventHandler('es:getPlayers', function(callback)
 function registerUser(identifier, source)
   db.GETDatabase(function(success)
       if success then
-        LoadUser(identifier, source)
+        LoadUser(identifier, source, false)
       else
         db.GETData(
           function(uuid)
@@ -56,7 +48,7 @@ function registerUser(identifier, source)
             db.PUTData(uuid, 
               function(success)
                 if success then
-                  LoadUser(identifier, source)
+                  LoadUser(identifier, source, true)
                 end
               end, 'essentialmode', queryData)
           end, '_uuids')
