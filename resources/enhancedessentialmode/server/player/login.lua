@@ -38,8 +38,9 @@ AddEventHandler('es:getPlayers', function(callback)
   end)
 
 function registerUser(identifier, source)
-  db.GETDatabase(function(success)
-      if success then
+  queryData = {selector = {["identifier"] = identifier}}
+  db.POSTData(function(doc)
+      if (doc) then
         LoadUser(identifier, source, false)
       else
         db.GETData(
@@ -53,7 +54,7 @@ function registerUser(identifier, source)
               end, 'essentialmode', queryData)
           end, '_uuids')
       end
-    end, 'essentialmode/' .. identifier)
+    end, 'essentialmode/_find',queryData)
 end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
