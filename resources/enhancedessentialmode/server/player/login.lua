@@ -48,7 +48,7 @@ function registerUser(identifier, source)
         db.GETData(
           function(uuid)
             queryData = { identifier = identifier, money = 0, bank = 0, group = "user", permission_level = 0 }
-            db.PUTData(uuid, 
+            db.PUTData(uuid[1], 
               function(success)
                 if success then
                   LoadUser(identifier, source, true)
