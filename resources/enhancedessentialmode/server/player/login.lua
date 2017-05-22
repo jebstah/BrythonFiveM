@@ -2,8 +2,8 @@
 
 -- Modified by c7a1 and Zaedred
 
-local POST_database = 'essentialsmode/_find'
-local PUT_database = 'essentialsmode'
+local POST_database = 'essentialmode/_find'
+local PUT_database = 'essentialmode'
 local queryData = {}
 
 function LoadUser(identifier, source)
