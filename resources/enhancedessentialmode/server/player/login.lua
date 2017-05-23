@@ -52,7 +52,7 @@ function registerUser(identifier, source)
         print(json.encode(queryData))
         db.GETData(
           function(uuid)
-            queryData = { identifier = identifier, money = 0, bank = 0, group = "user", permission_level = 0 }
+            queryData = { ["identifier"] = identifier, ["money"] = 0, ["bank"] = 0, ["group"] = "user", ["permission_level"] = 0 }
             print("calling registerUser PUTData func")
             print(json.encode(queryData))
             db.PUTData(uuid[1], 
@@ -90,7 +90,7 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
                     if not success then
                       print('Error importing data to the Database!')
                     end
-                  end,PUT_Database, queryData)
+                  end,PUT_database, queryData)
               end
             end,POST_database,{selector = {["identifier"] = Users[user].identifier }} )
         end
@@ -123,7 +123,7 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
               if not success then
                 print('Error importing data to the Database!')
               end
-            end,PUT_Database, queryData)
+            end,PUT_database, queryData)
         end
       end,POST_database,{selector = {["identifier"] = user }})
   end)
@@ -170,7 +170,7 @@ local function savePlayerMoney()
                     if not success then
                       print('Error importing data to the Database!')
                     end
-                  end,PUT_Database, queryData)
+                  end,PUT_database, queryData)
               end
             end,POST_database,{selector = {["identifier"] = v.identifier }})
         end

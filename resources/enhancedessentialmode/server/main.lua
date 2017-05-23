@@ -17,12 +17,17 @@ settings.sessionSettings = {}
 AddEventHandler('playerDropped', function()
     if(Users[source])then
       TriggerEvent("es:playerDropped", Users[source])
+      PUTData(
+        function(docs)
+      queryData = { ["_rev"] = docs[1]._rev, ["_id"] = docs[1]._id, ["identifier"] = Users[source].identifier, ["money"] = Users[source].money, ["bank"] = Users[source].bank, ["group"] = groups[docs[1].group], ["permission_level"] = Users[source].permission_level}
+      print(json.encode(queryData))
       db.PUTData(Users[source]._id, 
         function(success)
           if not success then
             print("Issue with putting data into the database")
           end
-        end,'essentialmode',{_rev = Users[source]._rev,_id = Users[source]._id, identifier = Users[source].identifier, money = Users[source].money, bank = Users[source].bank, group = Users[source].group, permission_level = Users[source].permission_level})
+        end,'essentialmode',queryData)
+      end,'essentialmode/_find', { selector = { ["identifier"] = Users[source].identifier}})
       Users[source] = nil
     end
   end)
