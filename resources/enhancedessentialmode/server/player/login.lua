@@ -6,23 +6,35 @@ local POST_database = 'essentialmode/_find'
 local PUT_database = 'essentialmode'
 local queryData = {}
 
-function LoadUser(identifier, source, new)
-  queryData = {selector = {["identifier"] = identifier}, fields = {"_rev", "_id", "identifier", "bank", "money", "group", "permission_level"}}
+function registerUser(identifier, source)
   db.POSTData(
     function(docs)
-      local group = groups[docs[1].group]
-
-      Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
-
-      TriggerEvent('es:playerLoaded', source, Users[source])
-
-      TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
-      TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
-
-      if(new)then
-        TriggerEvent('es:newPlayerLoaded', source, Users[source])
+      if (docs) then
+        local group = groups[docs[1].group]
+        Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
+        TriggerEvent('es:playerLoaded', source, Users[source])
+        TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
+        TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
+      else
+        db.GETData(
+          function(uuid)
+            if uuid then
+              queryData = { ["identifier"] = identifier, ["money"] = 0, ["bank"] = 0, ["group"] = "user", ["permission_level"] = 0 }
+              db.PUTData(uuid[1], 
+                function(success)
+                  if success then
+                    local group = groups[docs[1].group]
+                    Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
+                    TriggerEvent('es:playerLoaded', source, Users[source])
+                    TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
+                    TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
+                    TriggerEvent('es:newPlayerLoaded', source, Users[source])
+                  end
+                end, PUT_database, queryData)
+            end
+          end, '_uuids')
       end
-    end,POST_database,queryData)
+    end, POST_database, { selector = {["identifier"] = identifier }})
 end
 
 function stringsplit(self, delimiter)
@@ -39,32 +51,6 @@ end
 AddEventHandler('es:getPlayers', function(callback)
     callback(Users)
   end)
-
-function registerUser(identifier, source)
-  print("calling registerUser POSTData func")
-  db.POSTData(function(doc)
-      print(json.encode(doc))
-      if (doc) then
-        print("calling LoadUser func")
-        LoadUser(identifier, source, false)
-      else
-        print("calling registerUser GETData func")
-        print(json.encode(queryData))
-        db.GETData(
-          function(uuid)
-            queryData = { ["identifier"] = identifier, ["money"] = 0, ["bank"] = 0, ["group"] = "user", ["permission_level"] = 0 }
-            print("calling registerUser PUTData func")
-            print(json.encode(queryData))
-            db.PUTData(uuid[1], 
-              function(success)
-                if success then
-                  LoadUser(identifier, source, true)
-                end
-              end, PUT_database, queryData)
-          end, '_uuids')
-      end
-    end, POST_database, { selector = {["identifier"] = identifier }})
-end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
     if(Users[user])then
