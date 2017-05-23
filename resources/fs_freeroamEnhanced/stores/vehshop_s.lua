@@ -23,7 +23,7 @@ AddEventHandler('CheckMoneyForVeh', function(vehicle, price)
           -- Pay the shop (price)
           user:removeMoney((price))
           -- Save this shit to the database
-          db.GETData("",
+          db.GETDatabase(
             function(uuid)
               for i in pairs({personalvehicle = vehicle})do
               user[i] = update[i]
@@ -60,7 +60,7 @@ AddEventHandler('es:newPlayerLoaded', function(source, user)
 
     if created[source] == nil then
       print('test creating acc ' .. tostring(created[source]))
-      db.GETData("",
+      db.GETData(
         function(uuid)
           if uuid then
             db.PUTData(uuid,

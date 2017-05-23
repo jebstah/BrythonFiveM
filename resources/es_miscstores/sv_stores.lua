@@ -315,15 +315,15 @@ AddEventHandler('es_roleplay:buySnack', function(s)
 function addWeapon(u, w)
   TriggerEvent("es:getPlayerFromId", u, 
     function(user)
-      db.GETData("",
-        function(exist, rText)
-          if exists then
-            db.PUTData(rText['uuid'],
-              function(exist, rText)
-                if not exist then
+      db.GETData(
+        function(uuid)
+          if uuid then
+            db.PUTData(uuid[1],
+              function(success)
+                if not success then
                   print('Error importing data to the Database!')
                 else
-                  queryData = '{ "identifier":"' .. user.identifier .. '",  "weapon": ' .. w .. "}"
+                  queryData = '{ "identifier":"' .. user.identifier .. '",  "weapon": "' .. w .. '"}'
                 end
               end,PUT_Database, queryData)
           end

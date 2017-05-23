@@ -63,7 +63,7 @@ function registerUser(identifier, source)
               end, PUT_database, queryData)
           end, '_uuids')
       end
-    end, POST_database,'{selector : {["identifier"] :'..identifier..'}}')
+    end, POST_database, { selector = {["identifier"] = identifier }})
 end
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
@@ -92,7 +92,7 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
                     end
                   end,PUT_Database, queryData)
               end
-            end,POST_database,'{selector : {["identifier"] :'..Users[user]['identifier']..'}}')
+            end,POST_database,{selector = {["identifier"] = Users[user].identifier }} )
         end
         if(k == "group")then
           Users[user].group = groups[v]
@@ -125,7 +125,7 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
               end
             end,PUT_Database, queryData)
         end
-      end,POST_database,'{selector : {["identifier"] :'..user..'}}')
+      end,POST_database,{selector = {["identifier"] = user }})
   end)
 
 AddEventHandler("es:getPlayerFromId", function(user, cb)
@@ -172,7 +172,7 @@ local function savePlayerMoney()
                     end
                   end,PUT_Database, queryData)
               end
-            end,POST_database,'{selector : {["identifier"] :'..v.identifier..'}}')
+            end,POST_database,{selector = {["identifier"] = v.identifier }})
         end
       end)
 

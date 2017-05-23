@@ -371,7 +371,7 @@ TriggerEvent('es:getPlayerFromId', source,
           db.GETData(
             function(uuid)
               if uuid then
-                db.PUTData(uuid,
+                db.PUTData(uuid[1],
                   function(success)
                     if not success then
                       print('Error importing data to the Database!')
