@@ -1,5 +1,5 @@
 firstRun('essentialmode')
-firstRun('fs_freeroam')
+firstRun('es_freeroam')
 firstRun('es_carshop')
 firstRun('es_customization')
 firstRun('es_miscstores')
