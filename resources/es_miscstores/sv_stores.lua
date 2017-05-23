@@ -325,7 +325,7 @@ function addWeapon(u, w)
                 else
                   queryData = '{ "identifier":"' .. user.identifier .. '",  "weapon": "' .. w .. '"}'
                 end
-              end,PUT_Database, queryData)
+              end,PUT_database, queryData)
           end
         end,'_uuids')
     end)

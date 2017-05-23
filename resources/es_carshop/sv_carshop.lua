@@ -140,7 +140,7 @@ AddEventHandler("es:reload", function()
                   end
                   TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
                 end,
-                POST_Database, queryData)
+                POST_database, queryData)
             end)
         end
       end
@@ -180,7 +180,7 @@ AddEventHandler("onResourceStart", function(rs)
                       end
 
                     end,
-                    POST_Database, queryData)
+                    POST_database, queryData)
                 end)
               TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
             end
@@ -365,7 +365,7 @@ TriggerEvent('es:getPlayerFromId', source,
       function(docs) 
         if docs then
           queryData = '{ "_rev":' .. docs[1]._rev .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
-          db.PUTData(docs[1]._id,function()end,PUT_Database,queryData)
+          db.PUTData(docs[1]._id,function()end,PUT_database,queryData)
         else
           print("No record found in database. Creating one.")
           db.GETData(
@@ -379,7 +379,7 @@ TriggerEvent('es:getPlayerFromId', source,
                       queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"
                     end
                   end,
-                  PUT_Database, queryData)
+                  PUT_database, queryData)
               end
             end,
             '_uuids')

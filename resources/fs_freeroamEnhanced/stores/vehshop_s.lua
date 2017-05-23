@@ -23,7 +23,7 @@ AddEventHandler('CheckMoneyForVeh', function(vehicle, price)
           -- Pay the shop (price)
           user:removeMoney((price))
           -- Save this shit to the database
-          db.GETDatabase(
+          db.GETData(
             function(uuid)
               for i in pairs({personalvehicle = vehicle})do
               user[i] = update[i]
@@ -34,7 +34,7 @@ AddEventHandler('CheckMoneyForVeh', function(vehicle, price)
                 if not success then
                   print('Error importing data to the Database!')
                 end
-              end,PUT_Database, queryData)
+              end,PUT_database, queryData)
           end,'_uuids')
         -- Trigger some client stuff
         TriggerClientEvent('FinishMoneyCheckForVeh',source)
@@ -71,7 +71,7 @@ AddEventHandler('es:newPlayerLoaded', function(source, user)
                   created[source] = true
                   queryData = {"identifier" = identifier, "personalvehicle" = ""}
                 end
-              end,PUT_Database, queryData)
+              end,PUT_database, queryData)
           end
         end,'_uuids')
     end
