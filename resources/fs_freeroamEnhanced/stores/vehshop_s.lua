@@ -3,7 +3,7 @@
 local users = {}
 local POST_database = 'es_freeroam/_find'
 local PUT_database = 'es_freeroam'
-local queryData = '{selector = {["identifier"] = ""}}'
+local queryData = {}
 
 AddEventHandler('es:playerLoaded', function(source, user)
     queryData = {selector = {["identifier"] = user.identifier}}
@@ -29,7 +29,7 @@ AddEventHandler('CheckMoneyForVeh', function(vehicle, price)
               user[i] = update[i]
             end
             queryData = user
-            db.PUTData(uuid,
+            db.PUTData(uuid[1],
               function(success)
                 if not success then
                   print('Error importing data to the Database!')
@@ -63,7 +63,7 @@ AddEventHandler('es:newPlayerLoaded', function(source, user)
       db.GETData(
         function(uuid)
           if uuid then
-            db.PUTData(uuid,
+            db.PUTData(uuid[1],
               function(success)
                 if not success then
                   print('Error importing data to the Database!')
