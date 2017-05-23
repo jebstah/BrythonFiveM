@@ -44,7 +44,7 @@ end
 
 function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-      local allDocs = json.decode(rText)
+      local allDocs = json.decode(rText).docs
       print("Query:" .. serverUrl .. port .. "/" .. database .. "rText:" .. rText)
       if (allDocs[1]._id) then
         callback(allDocs)
