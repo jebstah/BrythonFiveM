@@ -319,6 +319,5 @@ function addWeapon(u, w)
             print('Error importing data to the Database!')
           end
         end, database, { ["identifier"] = user.identifier,  ["weapon"] = w})
-    end
   end)
 end

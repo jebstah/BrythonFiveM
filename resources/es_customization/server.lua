@@ -101,8 +101,9 @@ AddEventHandler("playerSpawn", function()
               end
             end, database, queryData)
         end)
-    end)
+    end
+  end)
 
-  AddEventHandler("playerDropped", function()
-      savedOutfits[source] = nil
-    end)
+AddEventHandler("playerDropped", function()
+    savedOutfits[source] = nil
+  end)

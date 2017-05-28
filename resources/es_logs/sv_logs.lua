@@ -8,9 +8,10 @@ AddEventHandler('es:chatMessage', function(source, msg, user)
     db.createDocument(function(success)
         if not success then
           print('Error adding chat message to Database!')
-        end, 'chat_logs', queryData)
-    end
-  end)
+        end
+      end, 'chat_logs', queryData)
+  end
+end)
 
 AddEventHandler('es:adminCommandRan', function(source, msg, user)
     local tstamp2 = os.date("*t", os.time())
