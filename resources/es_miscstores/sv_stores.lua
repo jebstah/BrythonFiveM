@@ -138,7 +138,7 @@ function get3DDistance(x1, y1, z1, x2, y2, z2)
   return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2) + math.pow(z1 - z2, 2))
 end
 
-local POST_database = 'es_miscstores/outfits/_find'
+local POST_database = 'es_miscstores/_find'
 local PUT_database = 'es_miscstores'
 local queryData = '{selector = {["identifier"] = }}'
 
@@ -148,12 +148,12 @@ local weaponsOwned = {}
 AddEventHandler('es:firstSpawn', function(source)
     TriggerEvent("es:getPlayerFromId", source, 
       function(target)
-        queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+        queryData = {selector = {["identifier"] = target.identifier}}
         db.POSTData(
-          function(exist, rText)
-            if exist then
+          function(docs)
+            if docs then
               weaponsOwned[source] = {}
-              for k,v in ipairs(rText)do
+              for k,v in ipairs(docs[1])do
               weaponsOwned[source][k] = v.weapon
               TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
             end
@@ -175,12 +175,12 @@ AddEventHandler("es_roleplay:washCar", function()
 AddEventHandler('es:playerLoaded', function(source, user)
     TriggerEvent("es:getPlayerFromId", source, 
       function(target)
-        queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+        queryData = {selector = {["identifier"] = target.identifier}}
         db.POSTData(
-          function(exist, rText)
-            if exist then
+          function(docs)
+            if docs then
               weaponsOwned[source] = {}
-              for k,v in ipairs(rText)do
+              for k,v in ipairs(docs[1])do
               weaponsOwned[source][k] = v.weapon
               TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
             end
@@ -218,12 +218,12 @@ AddEventHandler('onResourceStart', function(rs)
                 if(GetPlayerName(u))then
                   TriggerEvent("es:getPlayerFromId", u, function(target)
                       if(weaponsOwned[u] == nil)then
-                        queryData = '{selector = {["identifier"] = '..target.identifier..'}}'
+                        queryData = {selector = {["identifier"] = target.identifier}}
                         db.POSTData(
-                          function(exist, rText)
-                            if exist then
+                          function(docs)
+                            if docs then
                               weaponsOwned[u] = {}
-                              for k,v in ipairs(rText)do
+                              for k,v in ipairs(docs[1])do
                               weaponsOwned[u][k] = v.weapon
                               TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
                             end
@@ -315,18 +315,22 @@ AddEventHandler('es_roleplay:buySnack', function(s)
 function addWeapon(u, w)
   TriggerEvent("es:getPlayerFromId", u, 
     function(user)
+      local uuid = false
       db.GETData(
-        function(uuid)
-          if uuid then
-            db.PUTData(uuid[1],
-              function(success)
-                if not success then
-                  print('Error importing data to the Database!')
-                else
-                  queryData = '{ "identifier":"' .. user.identifier .. '",  "weapon": "' .. w .. '"}'
-                end
-              end,PUT_database, queryData)
+        function(val)
+          if val then
+            uuid = val
           end
         end,'_uuids')
+      if uuid then
+        db.PUTData(uuid[1],
+          function(success)
+            if not success then
+              print('Error importing data to the Database!')
+            else
+              queryData = { ["identifier"] = user.identifier,  ["weapon"] = w}
+            end
+          end,PUT_database, queryData)
+      end
     end)
 end

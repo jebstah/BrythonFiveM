@@ -175,14 +175,14 @@ AddEventHandler("onResourceStart", function(rs)
                     queryData = {selector = {["identifier"] = target.identifier}}
                     db.POSTData(
                       function(docs)
+                        local send = {}
                         for k,v in ipairs(docs[i])do
                         send[v.model] = true
                       end
-
+                      TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
                     end,
                     POST_database, queryData)
                 end)
-              TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
             end
           end
         end)
@@ -360,31 +360,35 @@ function setDynamicMulti(source, vehicle, options)
 end
 TriggerEvent('es:getPlayerFromId', source, 
   function(user)
-    local queryData = '{selector = {["identifier"] = '..user.identifier..',["model"] = ' .. vehicle   ..' }}'
+    local queryData = '{selector : {["identifier"] : '..user.identifier..',["model"] : ' .. vehicle   ..' }}'
+    local docs = false
     db.POSTData(
-      function(docs) 
-        if docs then
-          queryData = '{ "_rev":' .. docs[1]._rev .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
-          db.PUTData(docs[1]._id,function()end,PUT_database,queryData)
-        else
-          print("No record found in database. Creating one.")
-          db.GETData(
-            function(uuid)
-              if uuid then
-                db.PUTData(uuid[1],
-                  function(success)
-                    if not success then
-                      print('Error importing data to the Database!')
-                    else
-                      queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"
-                    end
-                  end,
-                  PUT_database, queryData)
-              end
-            end,
-            '_uuids')
+      function(val) 
+        if val then
+          docs = val
         end
       end, POST_database, queryData)
+    if docs then
+      queryData = '{ "_rev":' .. docs[1]._rev .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
+      db.PUTData(docs[1]._id,function()end,PUT_database,queryData)
+    else
+      local uuid
+      db.GETData(
+        function(val)
+          if val then
+            uuid = val
+          end
+        end,'_uuids')
+      if uuid then
+        queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"
+        db.PUTData(uuid[1],
+          function(success)
+            if not success then
+              print('Error importing data to the Database!')
+            end
+          end,PUT_database, queryData)
+      end
+    end
   end)
 end
 

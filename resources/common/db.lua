@@ -68,12 +68,14 @@ end
 
 -- First run check.
 function firstRun(database)
+  local exists
 db.GETDatabase(function(success)
-    if (success) then
-      db.PUTData("",function()end,database, "")
-    end
+    exists = success
   end,
 database)
+ if exists then
+  db.PUTData("",function()end,database, "")
+ end
 end
 
 
