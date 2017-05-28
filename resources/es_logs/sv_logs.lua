@@ -10,8 +10,7 @@ AddEventHandler('es:chatMessage', function(source, msg, user)
           print('Error adding chat message to Database!')
         end
       end, 'chat_logs', queryData)
-  end
-end)
+  end)
 
 AddEventHandler('es:adminCommandRan', function(source, msg, user)
     local tstamp2 = os.date("*t", os.time())
@@ -22,8 +21,8 @@ AddEventHandler('es:adminCommandRan', function(source, msg, user)
     db.createDocument(function(success)
         if not success then
           print('Error adding admin message to Database!')
-        end, 'admin_logs', queryData)
-    end
+        end
+      end, 'admin_logs', queryData)
   end)
 
 AddEventHandler('es:userCommandRan', function(source, msg, user)
@@ -35,6 +34,6 @@ AddEventHandler('es:userCommandRan', function(source, msg, user)
     db.createDocument(function(success)
         if not success then
           print('Error adding command message to Database!')
-        end, 'command_logs', queryData)
-    end
+        end
+      end, 'command_logs', queryData)
   end)
