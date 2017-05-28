@@ -138,9 +138,8 @@ function get3DDistance(x1, y1, z1, x2, y2, z2)
   return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2) + math.pow(z1 - z2, 2))
 end
 
-local POST_database = 'es_miscstores/_find'
-local PUT_database = 'es_miscstores'
-local queryData = '{selector = {["identifier"] = }}'
+local database = 'es_miscstores'
+local queryData = {}
 
 
 local weaponsOwned = {}
@@ -149,20 +148,20 @@ AddEventHandler('es:firstSpawn', function(source)
     TriggerEvent("es:getPlayerFromId", source, 
       function(target)
         queryData = {selector = {["identifier"] = target.identifier}}
-        db.POSTData(
+        db.findDocument(
           function(docs)
             if docs then
               weaponsOwned[source] = {}
-              for k,v in ipairs(docs[1])do
-              weaponsOwned[source][k] = v.weapon
-              TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              for k,v in ipairs(docs[1]) do
+                weaponsOwned[source][k] = v.weapon
+                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              end
             end
-          end
-        end, POST_database, queryData)
-    end)
-  for k,v in pairs(shops)do
-  TriggerClientEvent('es_miscstores:addWeaponShop', source, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
-end
+          end, database, queryData)
+      end)
+    for k,v in pairs(shops)do
+    TriggerClientEvent('es_miscstores:addWeaponShop', source, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
+  end
 end)
 
 RegisterServerEvent("es_roleplay:washCar")
@@ -176,21 +175,21 @@ AddEventHandler('es:playerLoaded', function(source, user)
     TriggerEvent("es:getPlayerFromId", source, 
       function(target)
         queryData = {selector = {["identifier"] = target.identifier}}
-        db.POSTData(
+        db.findDocument(
           function(docs)
             if docs then
               weaponsOwned[source] = {}
-              for k,v in ipairs(docs[1])do
-              weaponsOwned[source][k] = v.weapon
-              TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              for k,v in ipairs(docs[1]) do
+                weaponsOwned[source][k] = v.weapon
+                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              end
             end
-          end
-        end, POST_database, queryData)
-    end)
-  TriggerClientEvent('es:playerLoaded', source)
-  for k,v in pairs(shops)do
-  TriggerClientEvent('es_miscstores:addWeaponShop', source, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
-end
+          end, database, queryData)
+      end)
+    TriggerClientEvent('es:playerLoaded', source)
+    for k,v in pairs(shops)do
+    TriggerClientEvent('es_miscstores:addWeaponShop', source, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
+  end
 end)
 
 AddEventHandler('playerSpawn', function()
@@ -219,25 +218,25 @@ AddEventHandler('onResourceStart', function(rs)
                   TriggerEvent("es:getPlayerFromId", u, function(target)
                       if(weaponsOwned[u] == nil)then
                         queryData = {selector = {["identifier"] = target.identifier}}
-                        db.POSTData(
+                        db.findDocument(
                           function(docs)
                             if docs then
-                              weaponsOwned[u] = {}
-                              for k,v in ipairs(docs[1])do
-                              weaponsOwned[u][k] = v.weapon
-                              TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+                              weaponsOwned[source] = {}
+                              for k,v in ipairs(docs[1]) do
+                                weaponsOwned[source][k] = v.weapon
+                                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+                              end
                             end
-                          end
-                        end, POST_database, queryData)
-                    end
-                  end)
-                TriggerClientEvent('es_miscstores:addWeaponShop', u, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
+                          end, database, queryData)
+                      end
+                    end)
+                  TriggerClientEvent('es_miscstores:addWeaponShop', u, k, v.position.x, v.position.y, v.position.z, 255, 0, 0, v.stock)
+                end
               end
-            end
-          end)
-      end)
+            end)
+        end)
+    end
   end
-end
 end)
 
 RegisterServerEvent("es_roleplay:buyWeapon")
@@ -315,22 +314,11 @@ AddEventHandler('es_roleplay:buySnack', function(s)
 function addWeapon(u, w)
   TriggerEvent("es:getPlayerFromId", u, 
     function(user)
-      local uuid = false
-      db.GETData(
-        function(val)
-          if val then
-            uuid = val
+      db.createDocument(function(success)
+          if not success then
+            print('Error importing data to the Database!')
           end
-        end,'_uuids')
-      if uuid then
-        db.PUTData(uuid[1],
-          function(success)
-            if not success then
-              print('Error importing data to the Database!')
-            else
-              queryData = { ["identifier"] = user.identifier,  ["weapon"] = w}
-            end
-          end,PUT_database, queryData)
-      end
-    end)
+        end, database, { ["identifier"] = user.identifier,  ["weapon"] = w})
+    end
+  end)
 end

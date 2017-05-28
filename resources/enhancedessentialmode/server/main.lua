@@ -17,22 +17,12 @@ settings.sessionSettings = {}
 AddEventHandler('playerDropped', function()
     if(Users[source])then
       TriggerEvent("es:playerDropped", Users[source])
-      local docs = false
-      POSTData(
-        function(val)
-          if val then
-            docs = val
+
+      db.modifyDocument(function(val)
+          if not val then
+            print("Error saving data on player quit") 
           end
-        end,'essentialmode/_find', { selector = { ["identifier"] = Users[source].identifier}})
-      if docs then
-        queryData = { ["_rev"] = docs[1]._rev, ["_id"] = docs[1]._id, ["identifier"] = Users[source].identifier, ["money"] = Users[source].money, ["bank"] = Users[source].bank, ["group"] = groups[docs[1].group], ["permission_level"] = Users[source].permission_level}
-        db.PUTData(docs[1]._id, 
-          function(success)
-            if not success then
-              print("Issue with putting data into the database")
-            end
-          end,'essentialmode',queryData)
-      end
+        end, 'essentialmode', { selector = { ["identifier"] = Users[source].identifier}}, { ["identifier"] = Users[source].identifier, ["money"] = Users[source].money, ["bank"] = Users[source].bank, ["group"] = Users[source].group, ["permission_level"] = Users[source].permission_level})
       Users[source] = nil
     end
   end)

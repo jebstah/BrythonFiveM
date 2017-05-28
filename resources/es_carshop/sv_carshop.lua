@@ -2,14 +2,13 @@ local plugin_data = {}
 local vehicle_data = {}
 local plates = {}
 local vOptions = {}
-local POST_database = 'es_carshop/_find'
-local PUT_database = 'es_carshop'
+local database = 'es_carshop'
 local queryData = {}
 
 AddEventHandler("es:playerLoaded", 
   function(source, target) 
     queryData = {selector = {["identifier"] = target.identifier}}
-    db.POSTData(
+    db.findDocument(
       function(docs)
         if docs then
           local send = {}
@@ -18,7 +17,7 @@ AddEventHandler("es:playerLoaded",
         end
         TriggerClientEvent("es_carshop:sendOwnedVehicles", source, send)
       end
-    end, POST_database, queryData)
+    end, database, queryData)
 end)
 
 function get3DDistance(x1, y1, z1, x2, y2, z2)
@@ -132,15 +131,14 @@ AddEventHandler("es:reload", function()
             TriggerEvent('es:getPlayerFromId', i, 
               function(target)
                 queryData = {selector = {["identifier"] = target.identifier}}
-                db.POSTData(
+                db.findDocument(
                   function(docs)
                     local send = {}
                     for k,v in ipairs(docs)do
                     send[v.model] = true
                   end
                   TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
-                end,
-                POST_database, queryData)
+                end,database, queryData)
             end)
         end
       end
@@ -173,7 +171,7 @@ AddEventHandler("onResourceStart", function(rs)
                 TriggerEvent('es:getPlayerFromId', i, 
                   function(target)
                     queryData = {selector = {["identifier"] = target.identifier}}
-                    db.POSTData(
+                    db.findDocument(
                       function(docs)
                         local send = {}
                         for k,v in ipairs(docs[i])do
@@ -181,7 +179,7 @@ AddEventHandler("onResourceStart", function(rs)
                       end
                       TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
                     end,
-                    POST_database, queryData)
+                    database, queryData)
                 end)
             end
           end
@@ -355,41 +353,25 @@ AddEventHandler('es_carshop:vehicleCustom', function(model, data)
 end)
 
 function setDynamicMulti(source, vehicle, options)
-  for k,v in ipairs(options)do
-  str = str .. ',"' .. v.row .. '":"' .. v.value .. '"'
-end
-TriggerEvent('es:getPlayerFromId', source, 
-  function(user)
-    local queryData = '{selector : {["identifier"] : '..user.identifier..',["model"] : ' .. vehicle   ..' }}'
-    local docs = false
-    db.POSTData(
-      function(val) 
-        if val then
-          docs = val
-        end
-      end, POST_database, queryData)
-    if docs then
-      queryData = '{ "_rev":' .. docs[1]._rev .. ',"owner":"'.. user.identifier..'", "model": '..vehicle..',' .. str .. "}"
-      db.PUTData(docs[1]._id,function()end,PUT_database,queryData)
-    else
-      local uuid
-      db.GETData(
-        function(val)
-          if val then
-            uuid = val
+  local updates = {}
+  for k,v in ipairs(options) do
+    table.insert(updates[v.row], v.value)
+  end
+  TriggerEvent('es:getPlayerFromId', source, 
+    function(user)
+      local queryData = {selector = {["identifier"] = user.identifier, ["model"] =  vehicle  }}
+      db.modifyDocument(function(success)
+          if not success then
+            table.insert(updates["identifier"], user.identifier)
+            table.insert(updates["model"], vehicle)
+            db.createDocument(function(createSuccess)
+                if not createSuccess then
+                  print("something went wrong...")
+                end
+              end, database, updates)
           end
-        end,'_uuids')
-      if uuid then
-        queryData = '{ "owner":"' .. user.identifier .. '",  "model": ' .. vehicle .. ',' .. str .. "}"
-        db.PUTData(uuid[1],
-          function(success)
-            if not success then
-              print('Error importing data to the Database!')
-            end
-          end,PUT_database, queryData)
-      end
-    end
-  end)
+        end, database, queryData, updates)
+    end)
 end
 
 function addVehicle(s, v)
