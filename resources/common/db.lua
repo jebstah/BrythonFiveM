@@ -76,11 +76,15 @@ end
 function db.modifyDocument(callback, database, queryData, updateData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/_find", function(err, rText, headers)
       local allDocs = json.decode(rText)
+      local updates = {}
       if (allDocs.docs[1]) then
-        updates = {}
-        for k,v in ipairs(allDocs.docs[1]) do
-        table.insert(updates[v.row], (updateData[v.row] or v.value))
-      end
+        for k,v in pairs(allDocs.docs[1]) do
+          if updateData[v.row] ~= nil then
+              table.insert(updates[v.row], updateData[v.row])
+          else
+              table.insert(updates[v.row], v.value)
+          end
+        end
       table.insert(updates["_rev"], allDocs.docs[1]._rev)
       table.insert(updates["identifier"], allDocs.docs[1].identifier)
       print(json.encode(updates))

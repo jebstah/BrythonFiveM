@@ -4,6 +4,7 @@ local database = "es_customization"
 RegisterServerEvent("es_customization:saveUser")
 AddEventHandler("es_customization:saveUser", function(u)
     TriggerEvent("es:getPlayerFromId", source, function(target)
+        print("es_customization")
         local queryData = {selector = {["identifier"] = target.identifier}}
         local updates = {identifier = target.identifier,
           hair = u.hair,
@@ -39,9 +40,10 @@ AddEventHandler("es_customization:saveUser", function(u)
 AddEventHandler("es_customization:setToPlayerSkin", function(source)
     if(savedOutfits[source] == nil)then
       TriggerEvent("es:getPlayerFromId", source, function(target)
+          print("es_customization")
           local queryData = {selector = {["identifier"] = target.identifier}}
           db.findDocument(function(docs)
-              if docs then
+              if docs._id then
                 docs._id = nil
                 savedOutfits[source] = docs
                 TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
@@ -73,10 +75,10 @@ RegisterServerEvent("playerSpawn")
 AddEventHandler("playerSpawn", function()
     if(savedOutfits[source] == nil)then
       TriggerEvent("es:getPlayerFromId", source, function(target)
+          print("es_customization")
           local queryData = {selector = {["identifier"] =  target.identifier }}
-          local docs = false
           db.findDocument(function(docs)
-              if docs then
+              if docs._id then
                 docs._id = nil
                 savedOutfits[source] = docs
                 TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])

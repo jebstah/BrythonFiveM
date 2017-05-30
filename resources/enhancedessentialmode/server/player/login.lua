@@ -6,6 +6,7 @@ local database = 'essentialmode'
 local queryData = {}
 
 function registerUser(identifier, source)
+  print("Entering register user...")
   db.findDocument(function(docs)
       print("Register user docs: " .. json.encode(docs))
       if (docs) then
@@ -18,7 +19,7 @@ function registerUser(identifier, source)
       else
         queryData = { ["identifier"] = identifier, ["money"] = 0, ["bank"] = 0, ["group"] = "user", ["permission_level"] = 0 }
         db.createDocument(function(createDocs)
-            if createDocs._id then
+            if createDocs then
               local group = groups[createDocs.group]
               Users[source] = Player(source, createDocs.permission_level, createDocs.money, createDocs.bank, createDocs.identifier, group)
               TriggerEvent('es:playerLoaded', source, Users[source])
@@ -47,12 +48,13 @@ AddEventHandler('es:getPlayers', function(callback)
   end)
 
 AddEventHandler("es:setPlayerData", function(user, k, v, callback)
+    print("setPlayerData")
     if(Users[user])then
       if(Users[user][k])then
-
+        local new = {}
         if(k ~= "money") then
           Users[user][k] = v
-          new = {[k] = v}
+          new[k] = v
           db.modifyDocument(function(success)
               if not success then
                 callback("Error creating document")
@@ -71,7 +73,8 @@ AddEventHandler("es:setPlayerData", function(user, k, v, callback)
   end)
 
 AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
-    new = {[k] = v}
+    local new
+    new[k] = v
     db.modifyDocument(function(success)
         if not success then
           callback("Error creating document")
@@ -81,13 +84,7 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
   end)
 
 AddEventHandler("es:getPlayerFromId", function(user, cb)
-    print(json.encode(Users[user]))
-    if(Users[user].source == user)then
       cb(Users[user])
-    else
-      cb(nil)
-    end
-      
   end)
 
 AddEventHandler("es:getPlayerFromIdentifier", function(identifier, callback)
@@ -103,13 +100,12 @@ local function savePlayerMoney()
   SetTimeout(60000, function()
       TriggerEvent("es:getPlayers", function(users)
           for k,v in pairs(users)do
-          new = {["money"] = v.money}
-          print("Money = ".. v.money)
+          print(json.encode({money = v.money}) .. " " .. v.identifier)
           db.modifyDocument(function(success)
               if not success then
                 print("Error updating document")
               end
-            end,database, {selector = {["identifier"] = v.identifier }}, new)
+            end,database, {selector = {["identifier"] = v.identifier }}, {money = v.money})
         end
       end)
     savePlayerMoney()

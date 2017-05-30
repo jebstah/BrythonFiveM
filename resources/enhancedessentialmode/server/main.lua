@@ -1,5 +1,7 @@
 ﻿-- Made by KanerSPS
 
+-- Modified by c7a1 and Zaedred
+
 -- Server
 Users = {}
 commands = {}
@@ -28,8 +30,9 @@ AddEventHandler('playerDropped', function()
 
 local justJoined = {}
 
-RegisterServerEvent('es:firstJoinProper')
-AddEventHandler('es:firstJoinProper', function()
+RegisterServerEvent('es:connectionSuccess')
+AddEventHandler('es:connectionSuccess', function()
+    print("Calling register user...")
     registerUser(GetPlayerIdentifiers(source)[1], source)
     justJoined[source] = true
 

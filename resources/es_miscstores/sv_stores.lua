@@ -144,13 +144,13 @@ local queryData = {}
 
 local weaponsOwned = {}
 
-AddEventHandler('es:firstSpawn', function(source)
+AddEventHandler('es:firstSpawn', function()
     TriggerEvent("es:getPlayerFromId", source, 
       function(target)
         queryData = {selector = {["identifier"] = target.identifier}}
         db.findDocument(
           function(docs)
-            if docs then
+            if docs._id then
               weaponsOwned[source] = {}
               for k,v in ipairs(docs[1]) do
                 weaponsOwned[source][k] = v.weapon
@@ -177,7 +177,7 @@ AddEventHandler('es:playerLoaded', function(source, user)
         queryData = {selector = {["identifier"] = target.identifier}}
         db.findDocument(
           function(docs)
-            if docs then
+            if docs._id then
               weaponsOwned[source] = {}
               for k,v in ipairs(docs[1]) do
                 weaponsOwned[source][k] = v.weapon
@@ -220,9 +220,9 @@ AddEventHandler('onResourceStart', function(rs)
                         queryData = {selector = {["identifier"] = target.identifier}}
                         db.findDocument(
                           function(docs)
-                            if docs then
+                            if docs._id then
                               weaponsOwned[source] = {}
-                              for k,v in ipairs(docs[1]) do
+                              for k,v in ipairs(docs) do
                                 weaponsOwned[source][k] = v.weapon
                                 TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
                               end

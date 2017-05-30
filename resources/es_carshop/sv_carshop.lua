@@ -10,7 +10,7 @@ AddEventHandler("es:playerLoaded",
     queryData = {selector = {["identifier"] = target.identifier}}
     db.findDocument(
       function(docs)
-        if docs then
+        if docs._id then
           local send = {}
           for k,v in ipairs(docs[1].identifier)do
           send[v.model] = true
@@ -130,14 +130,17 @@ AddEventHandler("es:reload", function()
           if(GetPlayerName(i))then
             TriggerEvent('es:getPlayerFromId', i, 
               function(target)
+                print("es_carshop")
                 queryData = {selector = {["identifier"] = target.identifier}}
                 db.findDocument(
                   function(docs)
+                    if docs._id then
                     local send = {}
                     for k,v in ipairs(docs)do
                     send[v.model] = true
                   end
                   TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+                  end
                 end,database, queryData)
             end)
         end
@@ -170,14 +173,17 @@ AddEventHandler("onResourceStart", function(rs)
                 local send = {}
                 TriggerEvent('es:getPlayerFromId', i, 
                   function(target)
+                    print("es_carshop")
                     queryData = {selector = {["identifier"] = target.identifier}}
                     db.findDocument(
                       function(docs)
+                        if docs._id then
                         local send = {}
                         for k,v in ipairs(docs)do
                         send[v.model] = true
                       end
                       TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+                      end
                     end,
                     database, queryData)
                 end)
@@ -314,6 +320,7 @@ AddEventHandler('es_carshop:vehicleCustom', function(model, data)
             end
             if(limiter[source] < os.time())then
               TriggerEvent("es:getPlayerFromId", source, function(user)
+                  print("es_carshop")
                   limiter[source] = os.time() + 60
                   user:removeMoney(1500)
                   vehicle_data[source][k].colour = pstring
@@ -359,6 +366,7 @@ function setDynamicMulti(source, vehicle, options)
   end
   TriggerEvent('es:getPlayerFromId', source, 
     function(user)
+      print("es_carshop")
       local queryData = {selector = {["identifier"] = user.identifier, ["model"] =  vehicle  }}
       db.modifyDocument(function(success)
           if not success then
@@ -376,6 +384,7 @@ end
 
 function addVehicle(s, v)
   TriggerEvent('es:getPlayerFromId', s, function(user)
+      print("es_carshop")
       local plate = generatePlate(8)
       TriggerClientEvent('es_carshop:removeVehicles', source)
       TriggerClientEvent('es_carshop:createVehicle', source, v, { main_colour = stringsplit("0,0,0", ","), secondary_colour = stringsplit("0,0,0", ","), plate = plate, wheels = v.wheels, windows = v.windows, platetype = v.platetype, exhausts = v.exhausts, grills = v.grills, spoiler = v.spoiler })

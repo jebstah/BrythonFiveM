@@ -5,6 +5,7 @@ AddEventHandler('es:chatMessage', function(source, msg, user)
     local queryData = {sender = user.identifier, 
       timestamp = os.date(tstamp2.year .. "-" .. tstamp2.month .. "-" .. tstamp2.day .. " " .. tstamp2.hour .. ":" .. tstamp2.min .. ":" .. tstamp2.sec), 
       message = msg }
+    print("es_logs")
     db.createDocument(function(success)
         if not success then
           print('Error adding chat message to Database!')
@@ -18,6 +19,7 @@ AddEventHandler('es:adminCommandRan', function(source, msg, user)
     local queryData = {sender = user.identifier, 
       timestamp = os.date(tstamp2.year .. "-" .. tstamp2.month .. "-" .. tstamp2.day .. " " .. tstamp2.hour .. ":" .. tstamp2.min .. ":" .. tstamp2.sec), 
       message = msg }
+    print("es_logs")
     db.createDocument(function(success)
         if not success then
           print('Error adding admin message to Database!')
@@ -31,6 +33,7 @@ AddEventHandler('es:userCommandRan', function(source, msg, user)
     local queryData = {sender = user.identifier, 
       timestamp = os.date(tstamp2.year .. "-" .. tstamp2.month .. "-" .. tstamp2.day .. " " .. tstamp2.hour .. ":" .. tstamp2.min .. ":" .. tstamp2.sec), 
       message = msg }
+    print("es_logs")
     db.createDocument(function(success)
         if not success then
           print('Error adding command message to Database!')

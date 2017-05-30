@@ -8,7 +8,7 @@ Citizen.CreateThread(function()
 		Citizen.Wait(0)
 
 		if NetworkIsSessionStarted() then
-			TriggerServerEvent('es:firstJoinProper')
+			TriggerServerEvent('es:connectionSuccess')
 			return
 		end
 	end
