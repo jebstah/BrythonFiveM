@@ -152,9 +152,11 @@ AddEventHandler('es:firstSpawn', function()
           function(docs)
             if docs._id then
               weaponsOwned[source] = {}
-              for k,v in ipairs(docs[1]) do
-                weaponsOwned[source][k] = v.weapon
-                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              for k,v in pairs(docs) do
+                if k == "weapon" then
+                  weaponsOwned[source][k] = v
+                  TriggerClientEvent('es_roleplay:giveWeapon', source, v)
+                end
               end
             end
           end, database, queryData)
@@ -179,9 +181,11 @@ AddEventHandler('es:playerLoaded', function(source, user)
           function(docs)
             if docs._id then
               weaponsOwned[source] = {}
-              for k,v in ipairs(docs[1]) do
-                weaponsOwned[source][k] = v.weapon
-                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+              for k,v in pairs(docs) do
+                if k == "weapon" then
+                  weaponsOwned[source][k] = v
+                  TriggerClientEvent('es_roleplay:giveWeapon', source, v)
+                end
               end
             end
           end, database, queryData)
@@ -222,9 +226,11 @@ AddEventHandler('onResourceStart', function(rs)
                           function(docs)
                             if docs._id then
                               weaponsOwned[source] = {}
-                              for k,v in ipairs(docs) do
-                                weaponsOwned[source][k] = v.weapon
-                                TriggerClientEvent('es_roleplay:giveWeapon', source, v.weapon)
+                              for k,v in pairs(docs) do
+                                if k == "weapon" then
+                                  weaponsOwned[source][k] = v
+                                  TriggerClientEvent('es_roleplay:giveWeapon', source, v)
+                                end
                               end
                             end
                           end, database, queryData)
@@ -319,5 +325,5 @@ function addWeapon(u, w)
             print('Error importing data to the Database!')
           end
         end, database, { ["identifier"] = user.identifier,  ["weapon"] = w})
-  end)
+    end)
 end

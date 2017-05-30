@@ -12,8 +12,10 @@ AddEventHandler("es:playerLoaded",
       function(docs)
         if docs._id then
           local send = {}
-          for k,v in ipairs(docs[1].identifier)do
-          send[v.model] = true
+          for k,v in pairs(docs)do
+          if k == 'model' then
+            send[v] = true
+          end
         end
         TriggerClientEvent("es_carshop:sendOwnedVehicles", source, send)
       end
@@ -135,11 +137,13 @@ AddEventHandler("es:reload", function()
                 db.findDocument(
                   function(docs)
                     if docs._id then
-                    local send = {}
-                    for k,v in ipairs(docs)do
-                    send[v.model] = true
-                  end
-                  TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+                      local send = {}
+                      for k,v in pairs(docs)do
+                      if k == 'model' then
+                        send[v] = true
+                      end
+                    end
+                    TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
                   end
                 end,database, queryData)
             end)
@@ -178,11 +182,13 @@ AddEventHandler("onResourceStart", function(rs)
                     db.findDocument(
                       function(docs)
                         if docs._id then
-                        local send = {}
-                        for k,v in ipairs(docs)do
-                        send[v.model] = true
-                      end
-                      TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
+                          local send = {}
+                          for k,v in pairs(docs)do
+                          if k == 'model' then
+                            send[v] = true
+                          end
+                        end
+                        TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
                       end
                     end,
                     database, queryData)
@@ -361,8 +367,8 @@ end)
 
 function setDynamicMulti(source, vehicle, options)
   local updates = {}
-  for k,v in ipairs(options) do
-    table.insert(updates[v.row], v.value)
+  for k,v in pairs(options) do
+    updates[k] = v
   end
   TriggerEvent('es:getPlayerFromId', source, 
     function(user)
@@ -370,8 +376,8 @@ function setDynamicMulti(source, vehicle, options)
       local queryData = {selector = {["identifier"] = user.identifier, ["model"] =  vehicle  }}
       db.modifyDocument(function(success)
           if not success then
-            table.insert(updates["identifier"], user.identifier)
-            table.insert(updates["model"], vehicle)
+            updates["identifier"] = user.identifier
+            updates["model"] = vehicle
             db.createDocument(function(createSuccess)
                 if not createSuccess then
                   print("something went wrong...")
