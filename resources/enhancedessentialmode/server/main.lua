@@ -17,7 +17,6 @@ settings.sessionSettings = {}
 AddEventHandler('playerDropped', function()
     if(Users[source])then
       TriggerEvent("es:playerDropped", Users[source])
-
       db.modifyDocument(function(val)
           if not val then
             print("Error saving data on player quit") 

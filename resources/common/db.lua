@@ -8,10 +8,10 @@ db = {}
 
 function db.createDatabase(callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-      local response = json.decode(rText)
-      if not (response.ok) then
+      if err > 299 then
         PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-            if (response.ok) then
+            local response2 = json.decode(rText)
+            if (response2.ok) then
               callback(true)
             else
               callback(false)
@@ -19,22 +19,21 @@ function db.createDatabase(callback, database)
           end, "PUT", "", {Authorization = "Basic " .. auth})
       else
         callback(false)
-        print("Database ".. database .." exists.")
       end
     end, "GET", "", {Authorization = "Basic " .. auth})
 end
 
 function db.createDocument(callback, database, query)
-  PerformHttpRequest(serverUrl .. port .. "/_uuid", function(err, rText, headers)
+  PerformHttpRequest(serverUrl .. port .. "/_uuids", function(err, rText, headers)
       local uuids = json.decode(rText).uuids
       if (uuids) then
         PerformHttpRequest(serverUrl .. port .. "/".. database .. "/" .. uuids[1], function(err, rText, headers)
             local response = json.decode(rText)
-            if (response.ok) then
+            if err < 300 then
               PerformHttpRequest(serverUrl .. port .. "/".. database .. "/" .. uuids[1], function(err, rText, headers)
-                  local docs = json.decode(rText)
-                  if (docs[1]._id) then
-                    callback(docs)
+                  local allDocs = json.decode(rText)
+                  if (allDocs.docs[1]._id) then
+                    callback(allDocs.docs[1])
                   else
                     callback(false)
                   end
@@ -52,10 +51,10 @@ end
 
 function db.getDocument(callback, uuid, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/" .. uuid, function(err, rText, headers)
-      local allDocs = json.decode(rText).docs
+      local allDocs = json.decode(rText)
       print("Query:" .. serverUrl .. port .. "/" .. database .. "/" .. uuid .. " rText:" .. rText)
-      if (allDocs[1]._id) then
-        callback(allDocs)
+      if (allDocs.docs[1]) then
+        callback(allDocs.docs[1])
       else
         callback(false)
       end
@@ -64,10 +63,10 @@ end
 
 function db.findDocument(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/_find", function(err, rText, headers)
-      local allDocs = json.decode(rText).docs
+      local allDocs = json.decode(rText)
       print("Query:" .. serverUrl .. port .. "/_find  rText:" .. rText)
-      if (allDocs[1]._id) then
-        callback(allDocs)
+      if (allDocs.docs[1]) then
+        callback(allDocs.docs[1])
       else
         callback(false)
       end
@@ -77,14 +76,15 @@ end
 function db.modifyDocument(callback, database, queryData, updateData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database .. "/_find", function(err, rText, headers)
       local allDocs = json.decode(rText)
-      if (allDocs[1]._id) then
+      if (allDocs.docs[1]) then
         updates = {}
-        for k,v in ipairs(allDocs[1]) do
+        for k,v in ipairs(allDocs.docs[1]) do
         table.insert(updates[v.row], (updateData[v.row] or v.value))
       end
-      table.insert(updates["_rev"], allDocs[1]._rev)
-      table.insert(updates["identifier"], allDocs[1].identifier)
-      PerformHttpRequest(serverUrl .. port .. "/".. database .. "/" .. allDocs[1]._id, function(err, rText, headers)
+      table.insert(updates["_rev"], allDocs.docs[1]._rev)
+      table.insert(updates["identifier"], allDocs.docs[1].identifier)
+      print(json.encode(updates))
+      PerformHttpRequest(serverUrl .. port .. "/".. database .. "/" .. allDocs.docs[1]._id, function(err, rText, headers)
           local response = json.decode(rText)
           if (response.ok) then
             callback(true)
@@ -137,7 +137,7 @@ end
 
 function db.POSTData(callback, database, queryData)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-      local allDocs = json.decode(rText).docs
+      local allDocs = json.decode(rText)
       print("Query:" .. serverUrl .. port .. "/" .. database .. "rText:" .. rText)
       if (allDocs[1]._id) then
         callback(allDocs)
@@ -167,7 +167,6 @@ function firstRun(database)
       end
     end,database)
 end
-
 
 --Last line apparently requires, or so says the shitty dev :)
 local theTestObject, jsonPos, jsonErr = json.decode('{"test":"tested"}')

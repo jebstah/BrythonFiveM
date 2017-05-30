@@ -6,21 +6,21 @@ local database = 'essentialmode'
 local queryData = {}
 
 function registerUser(identifier, source)
-  local docs = false
-
   db.findDocument(function(docs)
+      print("Register user docs: " .. json.encode(docs))
       if (docs) then
-        local group = groups[docs[1].group]
-        Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
+        local group = groups[docs.group]
+        Users[source] = Player(source, docs.permission_level, docs.money, docs.bank, docs.identifier, group)
+         print("Register user variable: " .. json.encode(Users[source]))
         TriggerEvent('es:playerLoaded', source, Users[source])
         TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
         TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
       else
         queryData = { ["identifier"] = identifier, ["money"] = 0, ["bank"] = 0, ["group"] = "user", ["permission_level"] = 0 }
-        db.createDocument(function(docs)
-            if docs then
-              local group = groups[docs[1].group]
-              Users[source] = Player(source, docs[1].permission_level, docs[1].money, docs[1].bank, docs[1].identifier, group)
+        db.createDocument(function(createDocs)
+            if createDocs._id then
+              local group = groups[createDocs.group]
+              Users[source] = Player(source, createDocs.permission_level, createDocs.money, createDocs.bank, createDocs.identifier, group)
               TriggerEvent('es:playerLoaded', source, Users[source])
               TriggerClientEvent('es:setPlayerDecorator', source, 'rank', Users[source]:getPermissions())
               TriggerClientEvent('es:setMoneyIcon', source,settings.defaultSettings.moneyIcon)
@@ -81,15 +81,13 @@ AddEventHandler("es:setPlayerDataId", function(user, k, v, callback)
   end)
 
 AddEventHandler("es:getPlayerFromId", function(user, cb)
-    if(Users)then
-      if(Users[user])then
-        cb(Users[user])
-      else
-        cb(nil)
-      end
+    print(json.encode(Users[user]))
+    if(Users[user].source == user)then
+      cb(Users[user])
     else
       cb(nil)
     end
+      
   end)
 
 AddEventHandler("es:getPlayerFromIdentifier", function(identifier, callback)
@@ -106,9 +104,10 @@ local function savePlayerMoney()
       TriggerEvent("es:getPlayers", function(users)
           for k,v in pairs(users)do
           new = {["money"] = v.money}
+          print("Money = ".. v.money)
           db.modifyDocument(function(success)
               if not success then
-                print("Error creating document")
+                print("Error updating document")
               end
             end,database, {selector = {["identifier"] = v.identifier }}, new)
         end

@@ -42,7 +42,7 @@ AddEventHandler("es_customization:setToPlayerSkin", function(source)
           local queryData = {selector = {["identifier"] = target.identifier}}
           db.findDocument(function(docs)
               if docs then
-                docs[1]._id = nil
+                docs._id = nil
                 savedOutfits[source] = docs
                 TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
               else
@@ -77,7 +77,7 @@ AddEventHandler("playerSpawn", function()
           local docs = false
           db.findDocument(function(docs)
               if docs then
-                docs[1]._id = nil
+                docs._id = nil
                 savedOutfits[source] = docs
                 TriggerClientEvent("es_customization:setOutfit", source, savedOutfits[source])
               else

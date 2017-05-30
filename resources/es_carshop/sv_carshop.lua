@@ -174,7 +174,7 @@ AddEventHandler("onResourceStart", function(rs)
                     db.findDocument(
                       function(docs)
                         local send = {}
-                        for k,v in ipairs(docs[i])do
+                        for k,v in ipairs(docs)do
                         send[v.model] = true
                       end
                       TriggerClientEvent("es_carshop:sendOwnedVehicles", i, send)
