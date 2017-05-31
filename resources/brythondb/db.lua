@@ -18,8 +18,8 @@ function db.createDatabase(callback, database)
   PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
       if err > 299 then
         PerformHttpRequest(serverUrl .. port .. "/" .. database, function(err, rText, headers)
-            local response2 = json.decode(rText)
-            if (response2.ok) then
+            local response = json.decode(rText)
+            if (response.ok) then
               callback(true)
             else
               callback(false)
@@ -52,7 +52,6 @@ function db.createDocument(callback, database, query)
           end, "PUT", json.encode(query), {Authorization = "Basic " .. auth})
       else
         callback(false)
-        print("Error creating document.")
       end
     end, "GET", "", {Authorization = "Basic " .. auth})
 end
@@ -86,13 +85,14 @@ function db.modifyDocument(callback, database, queryData, updateData)
       local allDocs = json.decode(rText)
       local updates = {}
       if (allDocs.docs[1]) then
+--      Makes sure that even if {money = 10} is sent, the rest of the data stays in the record as well.
+--      _id is used in the URL of PUT so it's not needed in the query.
+--      Cannot be used to add things that do not exist and is out of the scope of the function.
         for k,v in pairs(allDocs.docs[1]) do
---        print(k, v)
           updates[k] = (updateData[k] or allDocs.docs[1][k])
         end
       updates["_rev"] = allDocs.docs[1]._rev
       updates["identifier"] = allDocs.docs[1].identifier
---      print(json.encode(updates))
       PerformHttpRequest(serverUrl .. port .. "/".. database .. "/" .. allDocs.docs[1]._id, function(err, rText, headers)
           local response = json.decode(rText)
           if (response.ok) then
