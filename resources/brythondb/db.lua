@@ -110,8 +110,8 @@ end
 --[[
 
 --
--- Everything below were used as test function, but I cam across the scenario where I would only need one of the 5 above.
--- If you need one of the functions below for something feel free to cut it out of the comment black and place it where it
+-- Everything below were used as test functions, but I cam across the scenario where I would only need one of the 5 above.
+-- If you need one of the functions below for something feel free to cut it out of the comment block and place it where it
 -- will be considered an actual function.
 --
 
