@@ -1,4 +1,8 @@
---include server_script '../brythondb/db.lua' in the __resource file to access functions below.
+--include the server_script line below in the __resource file to access functions below. 
+--Don't forget to remove the -- infront of server_script as this creates a comment in Lua.
+
+--server_script '../brythondb/db.lua'
+
 --Or where ever you may have put the file. ../ is a relative path which means to go up one folder level from current file
 --and continue the path to the folder brythondb/ and then the file db.lua
 
