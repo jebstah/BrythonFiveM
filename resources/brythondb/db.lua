@@ -177,5 +177,5 @@ function firstRun(database)
     end,database)
 end
 
---Last line apparently requires, or so says the shitty dev :)
+--Last line apparently required, or so says Kanersps. May try removing in the future.
 local theTestObject, jsonPos, jsonErr = json.decode('{"test":"tested"}')
