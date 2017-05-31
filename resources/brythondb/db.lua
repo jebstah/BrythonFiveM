@@ -1,3 +1,7 @@
+--include server_script '../brythondb/db.lua' in the __resource file to access functions below.
+--Or where ever you may have put the file. ../ is a relative path which means to go up one folder level from current file
+--and continue the path to the folder brythondb/ and then the file db.lua
+
 serverUrl = "http://127.0.0.1:"
 port = 5984
 auth = "username:password"
