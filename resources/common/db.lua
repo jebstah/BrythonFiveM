@@ -45,11 +45,11 @@ function db.createDocument(callback, database, query)
                   else
                     callback(false)
                   end
-                end, "GET", json.encode(query), {Authorization = "Basic " .. auth})
+                end, "GET", "", {Authorization = "Basic " .. auth})
             else
               callback(false)
             end
-          end, "PUT", json.encode(query), {Authorization = "Basic " .. auth})
+          end, "PUT", json.encode(query), {["Content-type"] = 'application/json', Authorization = "Basic " .. auth})
       else
         callback(false)
       end
